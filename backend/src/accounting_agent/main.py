@@ -1,0 +1,82 @@
+import os
+from contextlib import asynccontextmanager  # 1. ADD THIS IMPORT
+
+from accounting_agent.container import container
+from fastapi import FastAPI
+from fastapi.middleware.cors import CORSMiddleware
+
+from accounting_agent.api.routes.auth import router as auth_router
+from accounting_agent.api.routes.files import router as files_router
+from accounting_agent.api.routes.webhook import router as webhook_router
+from accounting_agent.api.routes.code import router as code_router
+
+# The postgres_db instance is created here, which is fine
+postgres_db = container.postgres_db()
+
+
+# 2. REMOVE THE OLD SYNCHRONOUS CALL
+# postgres_db.create_tables() # <--- THIS IS THE PROBLEM LINE, REMOVE IT
+
+# 3. DEFINE THE LIFESPAN CONTEXT MANAGER
+@asynccontextmanager
+async def lifespan(app: FastAPI):
+    """
+    Handles application startup and shutdown events.
+    """
+    # --- Startup ---
+    print("INFO:     Application startup: Creating database tables...")
+    # Call the async function correctly
+    await postgres_db.create_tables()
+    print("INFO:     Application startup: Database tables created/verified.")
+
+    yield  # The application runs while the lifespan is in this 'yield' state
+
+    # --- Shutdown ---
+    # You can add cleanup code here if needed, like closing the engine pool
+    print("INFO:     Application shutdown: Disposing database engine.")
+    await postgres_db.engine.dispose()
+
+
+# 4. ATTACH THE LIFESPAN TO THE APP INSTANCE
+app = FastAPI(title="Accounting Agent API", lifespan=lifespan)
+
+# Configure CORS with specific origins instead of wildcard
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=[
+        "https://accuai.live",
+        "http://localhost:3000",  # For local development
+        "http://localhost:5173",  # For Vite dev server
+    ],
+    allow_credentials=True,
+    allow_methods=["GET", "POST", "PUT", "DELETE", "OPTIONS", "PATCH"],
+    allow_headers=["*"],
+)
+
+# Include routers
+app.include_router(auth_router, prefix="/auth", tags=["Authentication"])
+app.include_router(files_router, prefix="/files", tags=["Files"])
+app.include_router(webhook_router, prefix="/webhook", tags=["Webhook"])
+app.include_router(code_router, prefix="/codes", tags=["Codes"])
+
+
+@app.get("/")
+async def root():
+    return {
+        "message": "Welcome to Accounting Agent API",
+        "status": "online"
+    }
+
+
+@app.get("/health")
+async def health_check():
+    return {
+        "status": "healthy"
+    }
+
+
+if __name__ == "__main__":
+    import uvicorn
+
+    port = int(os.getenv("PORT", "8001"))
+    uvicorn.run("accounting_agent.main:app", host="0.0.0.0", port=port, reload=True)
