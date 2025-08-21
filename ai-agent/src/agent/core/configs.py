@@ -2,7 +2,8 @@ from langgraph.constants import START, END
 from langgraph.graph import StateGraph
 from typing import Literal
 
-from src.agent.core.chat_graph import generate_answer
+from agent.core.chat_graph_state import ChatGraphState
+from src.agent.core.chat_graph import prepare_inputs_node, generate_answer_node
 from src.agent.core.state import State
 from src.agent.core.agent import llm_call, tool_node, should_continue, segment_into_steps, next_step
 from src.agent.core.graph import llm_file_explore, llm_call_evaluator, build_context, make_plan, determine_input_type, \
@@ -149,16 +150,18 @@ def explore_plan_action():
 
 
 def simple_graph():
-    graph = StateGraph(State)
+    workflow = StateGraph(ChatGraphState)
 
-    graph.add_node("generate_answer", generate_answer)
+    # Add just two nodes
+    workflow.add_node("prepare_inputs", prepare_inputs_node)
+    workflow.add_node("generate_answer", generate_answer_node)
 
+    # The graph is now a simple, linear sequence
+    workflow.set_entry_point("prepare_inputs")
+    workflow.add_edge("prepare_inputs", "generate_answer")
+    workflow.add_edge("generate_answer", END)
 
-    # Start with file exploration
-    graph.add_edge(START, "generate_answer")
-    graph.add_edge( "generate_answer", END)
-
-    return graph
+    return workflow
 
 
 

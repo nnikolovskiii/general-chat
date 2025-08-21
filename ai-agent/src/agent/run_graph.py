@@ -14,9 +14,8 @@ config = RunnableConfig(recursion_limit=250)
 
 state = graph.invoke(
     {
-        "user_task": user_task,
-        # "project_path": project_path,
-        # "messages": HumanMessage(content=user_task),
+        "audio_path": "https://files.nikolanikolovski.com/test/download/test_audio.ogg",
+        "text_input": "Tell me is this type of thinking good?"
     }
     ,
     config=config

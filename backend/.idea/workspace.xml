@@ -1,0 +1,277 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="AutoImportSettings">
+    <option name="autoReloadType" value="SELECTIVE" />
+  </component>
+  <component name="ChangeListManager">
+    <list default="true" id="22e02aa6-f7b6-4218-89ba-0a82256bf9e2" name="Changes" comment="">
+      <change afterPath="$PROJECT_DIR$/../ai-agent/src/agent/core/chat_graph_state.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../ai-agent/src/agent/tools/audio_utils.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../ai-agent/src/lol.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../ai-agent/.idea/ai-agent.iml" beforeDir="false" afterPath="$PROJECT_DIR$/../ai-agent/.idea/ai-agent.iml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../ai-agent/.idea/misc.xml" beforeDir="false" afterPath="$PROJECT_DIR$/../ai-agent/.idea/misc.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../ai-agent/src/agent/core/chat_graph.py" beforeDir="false" afterPath="$PROJECT_DIR$/../ai-agent/src/agent/core/chat_graph.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../ai-agent/src/agent/core/configs.py" beforeDir="false" afterPath="$PROJECT_DIR$/../ai-agent/src/agent/core/configs.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../ai-agent/src/agent/core/state.py" beforeDir="false" afterPath="$PROJECT_DIR$/../ai-agent/src/agent/core/state.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../ai-agent/src/agent/run_graph.py" beforeDir="false" afterPath="$PROJECT_DIR$/../ai-agent/src/agent/run_graph.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../ai-agent/src/utils.py" beforeDir="false" afterPath="$PROJECT_DIR$/../ai-agent/src/utils.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/accounting_agent/api/routes/auth.py" beforeDir="false" afterPath="$PROJECT_DIR$/src/accounting_agent/api/routes/auth.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/accounting_agent/api/routes/chat.py" beforeDir="false" afterPath="$PROJECT_DIR$/src/accounting_agent/api/routes/chat.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/accounting_agent/api/routes/files.py" beforeDir="false" afterPath="$PROJECT_DIR$/src/accounting_agent/api/routes/files.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/accounting_agent/main.py" beforeDir="false" afterPath="$PROJECT_DIR$/src/accounting_agent/main.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/accounting_agent/services/chat.py" beforeDir="false" afterPath="$PROJECT_DIR$/src/accounting_agent/services/chat.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../frontend/src/components/ChatSidebar.css" beforeDir="false" afterPath="$PROJECT_DIR$/../frontend/src/components/ChatSidebar.css" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../frontend/src/components/ChatSidebar.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/../frontend/src/components/ChatSidebar.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../frontend/src/components/ChatView.css" beforeDir="false" afterPath="$PROJECT_DIR$/../frontend/src/components/ChatView.css" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../frontend/src/components/ChatView.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/../frontend/src/components/ChatView.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../frontend/src/components/InputArea.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/../frontend/src/components/InputArea.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../frontend/src/components/MessagesContainer.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/../frontend/src/components/MessagesContainer.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../frontend/src/lib/api.ts" beforeDir="false" afterPath="$PROJECT_DIR$/../frontend/src/lib/api.ts" afterDir="false" />
+    </list>
+    <option name="SHOW_DIALOG" value="false" />
+    <option name="HIGHLIGHT_CONFLICTS" value="true" />
+    <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
+    <option name="LAST_RESOLUTION" value="IGNORE" />
+  </component>
+  <component name="FileTemplateManagerImpl">
+    <option name="RECENT_TEMPLATES">
+      <list>
+        <option value="Python Script" />
+      </list>
+    </option>
+  </component>
+  <component name="Git.Settings">
+    <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$/.." />
+  </component>
+  <component name="ProjectColorInfo">{
+  &quot;associatedIndex&quot;: 7
+}</component>
+  <component name="ProjectId" id="2zj3fytskCGDkZiRMwPBjATgh6W" />
+  <component name="ProjectViewState">
+    <option name="hideEmptyMiddlePackages" value="true" />
+    <option name="showLibraryContents" value="true" />
+  </component>
+  <component name="PropertiesComponent"><![CDATA[{
+  "keyToString": {
+    "ModuleVcsDetector.initialDetectionPerformed": "true",
+    "Python.chat.executor": "Run",
+    "Python.main.executor": "Debug",
+    "Python.test.executor": "Run",
+    "RunOnceActivity.ShowReadmeOnStart": "true",
+    "RunOnceActivity.git.unshallow": "true",
+    "git-widget-placeholder": "master",
+    "junie.onboarding.icon.badge.shown": "true",
+    "last_opened_file_path": "/home/nnikolovskii/dev/general-chat/backend",
+    "node.js.detected.package.eslint": "true",
+    "node.js.detected.package.tslint": "true",
+    "node.js.selected.package.eslint": "(autodetect)",
+    "node.js.selected.package.tslint": "(autodetect)",
+    "nodejs_package_manager_path": "npm",
+    "settings.editor.selected.configurable": "com.jetbrains.python.configuration.PyActiveSdkModuleConfigurable",
+    "to.speed.mode.migration.done": "true",
+    "vue.rearranger.settings.migration": "true"
+  }
+}]]></component>
+  <component name="RecentsManager">
+    <key name="MoveFile.RECENT_KEYS">
+      <recent name="$PROJECT_DIR$/src/accounting_agent" />
+    </key>
+  </component>
+  <component name="RunManager" selected="Python.main">
+    <configuration name="init_db.sql" type="DatabaseScript" editBeforeRun="true" temporary="true" nameIsGenerated="true">
+      <script-file value="$PROJECT_DIR$/init_db.sql" />
+      <script-mode>FILE</script-mode>
+      <method v="2" />
+    </configuration>
+    <configuration name="chat" type="PythonConfigurationType" factoryName="Python" temporary="true" nameIsGenerated="true">
+      <module name="accounting-agent" />
+      <option name="ENV_FILES" value="" />
+      <option name="INTERPRETER_OPTIONS" value="" />
+      <option name="PARENT_ENVS" value="true" />
+      <envs>
+        <env name="PYTHONUNBUFFERED" value="1" />
+      </envs>
+      <option name="SDK_HOME" value="" />
+      <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$/src/accounting_agent/api/routes" />
+      <option name="IS_MODULE_SDK" value="true" />
+      <option name="ADD_CONTENT_ROOTS" value="true" />
+      <option name="ADD_SOURCE_ROOTS" value="true" />
+      <EXTENSION ID="PythonCoverageRunConfigurationExtension" runner="coverage.py" />
+      <option name="SCRIPT_NAME" value="$PROJECT_DIR$/src/accounting_agent/api/routes/chat.py" />
+      <option name="PARAMETERS" value="" />
+      <option name="SHOW_COMMAND_LINE" value="false" />
+      <option name="EMULATE_TERMINAL" value="false" />
+      <option name="MODULE_MODE" value="false" />
+      <option name="REDIRECT_INPUT" value="false" />
+      <option name="INPUT_FILE" value="" />
+      <method v="2" />
+    </configuration>
+    <configuration name="main" type="PythonConfigurationType" factoryName="Python" temporary="true" nameIsGenerated="true">
+      <module name="accounting-agent" />
+      <option name="ENV_FILES" value="" />
+      <option name="INTERPRETER_OPTIONS" value="" />
+      <option name="PARENT_ENVS" value="true" />
+      <envs>
+        <env name="PYTHONUNBUFFERED" value="1" />
+      </envs>
+      <option name="SDK_HOME" value="" />
+      <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$/src/accounting_agent" />
+      <option name="IS_MODULE_SDK" value="true" />
+      <option name="ADD_CONTENT_ROOTS" value="true" />
+      <option name="ADD_SOURCE_ROOTS" value="true" />
+      <EXTENSION ID="PythonCoverageRunConfigurationExtension" runner="coverage.py" />
+      <option name="SCRIPT_NAME" value="$PROJECT_DIR$/src/accounting_agent/main.py" />
+      <option name="PARAMETERS" value="" />
+      <option name="SHOW_COMMAND_LINE" value="false" />
+      <option name="EMULATE_TERMINAL" value="false" />
+      <option name="MODULE_MODE" value="false" />
+      <option name="REDIRECT_INPUT" value="false" />
+      <option name="INPUT_FILE" value="" />
+      <method v="2" />
+    </configuration>
+    <configuration name="test" type="PythonConfigurationType" factoryName="Python" temporary="true" nameIsGenerated="true">
+      <module name="accounting-agent" />
+      <option name="ENV_FILES" value="" />
+      <option name="INTERPRETER_OPTIONS" value="" />
+      <option name="PARENT_ENVS" value="true" />
+      <envs>
+        <env name="PYTHONUNBUFFERED" value="1" />
+      </envs>
+      <option name="SDK_HOME" value="" />
+      <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$/src/accounting_agent/utils" />
+      <option name="IS_MODULE_SDK" value="true" />
+      <option name="ADD_CONTENT_ROOTS" value="true" />
+      <option name="ADD_SOURCE_ROOTS" value="true" />
+      <EXTENSION ID="PythonCoverageRunConfigurationExtension" runner="coverage.py" />
+      <option name="SCRIPT_NAME" value="$PROJECT_DIR$/src/accounting_agent/utils/test.py" />
+      <option name="PARAMETERS" value="" />
+      <option name="SHOW_COMMAND_LINE" value="false" />
+      <option name="EMULATE_TERMINAL" value="false" />
+      <option name="MODULE_MODE" value="false" />
+      <option name="REDIRECT_INPUT" value="false" />
+      <option name="INPUT_FILE" value="" />
+      <method v="2" />
+    </configuration>
+    <recent_temporary>
+      <list>
+        <item itemvalue="Python.main" />
+        <item itemvalue="Python.chat" />
+        <item itemvalue="Database Script.init_db.sql" />
+        <item itemvalue="Python.test" />
+      </list>
+    </recent_temporary>
+  </component>
+  <component name="SharedIndexes">
+    <attachedChunks>
+      <set>
+        <option value="bundled-js-predefined-d6986cc7102b-09060db00ec0-JavaScript-PY-251.26927.90" />
+        <option value="bundled-python-sdk-41e8cd69c857-64d779b69b7a-com.jetbrains.pycharm.pro.sharedIndexes.bundled-PY-251.26927.90" />
+      </set>
+    </attachedChunks>
+  </component>
+  <component name="TaskManager">
+    <task active="true" id="Default" summary="Default task">
+      <changelist id="22e02aa6-f7b6-4218-89ba-0a82256bf9e2" name="Changes" comment="" />
+      <created>1752230761943</created>
+      <option name="number" value="Default" />
+      <option name="presentableId" value="Default" />
+      <updated>1752230761943</updated>
+      <workItem from="1752230763228" duration="2143000" />
+      <workItem from="1752242140177" duration="953000" />
+      <workItem from="1752400666585" duration="2942000" />
+      <workItem from="1752668377740" duration="4088000" />
+      <workItem from="1753195868679" duration="394000" />
+      <workItem from="1754497224001" duration="9000" />
+      <workItem from="1754499644748" duration="998000" />
+      <workItem from="1754502409201" duration="568000" />
+      <workItem from="1754524376420" duration="34000" />
+      <workItem from="1754524813399" duration="825000" />
+      <workItem from="1754552222639" duration="56000" />
+      <workItem from="1754598350604" duration="113000" />
+      <workItem from="1754598477799" duration="727000" />
+      <workItem from="1754655367508" duration="818000" />
+      <workItem from="1754739347223" duration="619000" />
+      <workItem from="1754817644419" duration="50000" />
+      <workItem from="1755180486221" duration="2076000" />
+      <workItem from="1755458584884" duration="12854000" />
+      <workItem from="1755640232174" duration="4096000" />
+      <workItem from="1755700854243" duration="3436000" />
+    </task>
+    <servers />
+  </component>
+  <component name="TypeScriptGeneratedFilesManager">
+    <option name="version" value="3" />
+  </component>
+  <component name="XDebuggerManager">
+    <breakpoint-manager>
+      <breakpoints>
+        <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
+          <url>file://$PROJECT_DIR$/src/accounting_agent/utils/file_processor.py</url>
+          <line>74</line>
+          <option name="timeStamp" value="1" />
+        </line-breakpoint>
+        <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
+          <url>file://$PROJECT_DIR$/src/accounting_agent/utils/file_processor.py</url>
+          <line>75</line>
+          <option name="timeStamp" value="2" />
+        </line-breakpoint>
+        <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
+          <url>file://$PROJECT_DIR$/src/accounting_agent/utils/file_processor.py</url>
+          <line>79</line>
+          <option name="timeStamp" value="3" />
+        </line-breakpoint>
+        <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
+          <url>file://$PROJECT_DIR$/src/accounting_agent/utils/file_processor.py</url>
+          <line>82</line>
+          <option name="timeStamp" value="4" />
+        </line-breakpoint>
+        <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
+          <url>file://$PROJECT_DIR$/src/accounting_agent/utils/file_processor.py</url>
+          <line>90</line>
+          <option name="timeStamp" value="5" />
+        </line-breakpoint>
+        <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
+          <url>file://$PROJECT_DIR$/src/accounting_agent/utils/file_processor.py</url>
+          <line>96</line>
+          <option name="timeStamp" value="12" />
+        </line-breakpoint>
+        <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
+          <url>file://$PROJECT_DIR$/src/accounting_agent/utils/file_processor.py</url>
+          <line>97</line>
+          <option name="timeStamp" value="13" />
+        </line-breakpoint>
+        <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
+          <url>file://$PROJECT_DIR$/src/accounting_agent/api/routes/files.py</url>
+          <line>81</line>
+          <option name="timeStamp" value="49" />
+        </line-breakpoint>
+        <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
+          <url>file://$PROJECT_DIR$/src/accounting_agent/api/routes/files.py</url>
+          <line>85</line>
+          <option name="timeStamp" value="52" />
+        </line-breakpoint>
+        <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
+          <url>file://$PROJECT_DIR$/src/accounting_agent/api/routes/files.py</url>
+          <line>86</line>
+          <option name="timeStamp" value="53" />
+        </line-breakpoint>
+        <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
+          <url>file://$PROJECT_DIR$/src/accounting_agent/api/routes/files.py</url>
+          <line>91</line>
+          <option name="timeStamp" value="54" />
+        </line-breakpoint>
+        <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
+          <url>file://$PROJECT_DIR$/src/accounting_agent/api/routes/files.py</url>
+          <line>97</line>
+          <option name="timeStamp" value="55" />
+        </line-breakpoint>
+      </breakpoints>
+    </breakpoint-manager>
+  </component>
+  <component name="com.intellij.coverage.CoverageDataManagerImpl">
+    <SUITE FILE_PATH="coverage/accounting_agent$test.coverage" NAME="test Coverage Results" MODIFIED="1752402731549" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="false" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/src/accounting_agent/utils" />
+    <SUITE FILE_PATH="coverage/backend$chat.coverage" NAME="chat Coverage Results" MODIFIED="1755641898411" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="false" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/src/accounting_agent/api/routes" />
+    <SUITE FILE_PATH="coverage/accounting_agent$main.coverage" NAME="main Coverage Results" MODIFIED="1752671538007" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="false" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/src/accounting_agent" />
+    <SUITE FILE_PATH="coverage/backend$main.coverage" NAME="main Coverage Results" MODIFIED="1755702985261" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="false" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/src/accounting_agent" />
+  </component>
+</project>

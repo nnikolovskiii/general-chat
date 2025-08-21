@@ -14,11 +14,11 @@ from accounting_agent.container import container
 from accounting_agent.utils.file_processor import process_file, poll_for_results
 from aiohttp import ClientTimeout
 
-
 router = APIRouter()
 
 # External file service URL
-FILE_SERVICE_URL = "http://files_app:5001"
+FILE_SERVICE_URL = "https://files.nikolanikolovski.com"
+
 
 def generate_unique_filename(original_filename: str) -> str:
     """
@@ -47,10 +47,11 @@ def generate_unique_filename(original_filename: str) -> str:
 
     return unique_filename
 
+
 @router.post("/upload")
 async def upload_file(
-    file: UploadFile = FastAPIFile(...),
-    current_user: User = Depends(get_current_user)
+        file: UploadFile = FastAPIFile(...),
+        current_user: User = Depends(get_current_user)
 ):
     """
     Upload a file to the external file service and save the metadata to the database.
@@ -72,15 +73,18 @@ async def upload_file(
 
             # Add the password header
             headers = {
-                'password': os.getenv("UPLOAD_PASSWORD") 
+                'password': os.getenv("UPLOAD_PASSWORD")
             }
 
-            async with session.post(f"{FILE_SERVICE_URL}/test/upload", 
-                                data=form, 
-                                headers=headers) as response:
+            upload_url = f"{FILE_SERVICE_URL}/test/upload"
+            print(f"Attempting to upload to external service: {upload_url}") # DEBUG LOG
+
+            async with session.post(upload_url,
+                                    data=form,
+                                    headers=headers) as response:
                 if response.status != 200:
-                    raise HTTPException(status_code=response.status, 
-                                       detail="Failed to upload file to external service")
+                    raise HTTPException(status_code=response.status,
+                                        detail="Failed to upload file to external service")
 
                 result = await response.json()
 
@@ -92,13 +96,6 @@ async def upload_file(
             unique_filename=unique_filename,  # Store unique filename
             content_type=file.content_type
         )
-
-        # Save to database
-        mdb = container.mdb()
-        id = await mdb.add_entry(file_record)
-        file_record.id = id
-        # Start processing the file with the agent
-        asyncio.create_task(process_file(file_record))
 
         return {
             "status": "success",
@@ -112,228 +109,3 @@ async def upload_file(
         }
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Error uploading file: {str(e)}")
-
-@router.get("/files")
-async def get_files(
-    current_user: User = Depends(get_current_user),
-    status: Optional[ProcessingStatus] = None
-):
-    """
-    Get all files for the current user.
-    Optionally filter by processing status.
-    """
-    try:
-        mdb = container.mdb()
-
-        # Build the filter
-        doc_filter = {"user_id": current_user.email}
-        if status:
-            doc_filter["processing_status"] = status
-
-        files = await mdb.get_entries(
-            class_type=File,
-            doc_filter=doc_filter
-        )
-
-        # Format the response
-        file_data = []
-        for file in files:
-            file_info = {
-                "filename": file.filename,
-                "unique_filename": file.unique_filename,
-                "url": file.url,
-                "content_type": file.content_type,
-                "processing_status": file.processing_status,
-                "thread_id": file.thread_id,
-                "run_id": file.run_id
-            }
-
-            # Only include processing_result if it exists and status is COMPLETED or FAILED
-            if file.processing_result and file.processing_status in [ProcessingStatus.COMPLETED, ProcessingStatus.FAILED]:
-                file_info["processing_result"] = file.processing_result
-
-            file_data.append(file_info)
-
-        return {
-            "status": "success",
-            "message": "Files retrieved successfully",
-            "data": file_data
-        }
-    except Exception as e:
-        raise HTTPException(status_code=500, detail=f"Error retrieving files: {str(e)}")
-
-@router.post("/process")
-async def process_files(
-    current_user: User = Depends(get_current_user),
-    filenames: Optional[List[str]] = None
-):
-    """
-    Process files that haven't been processed yet.
-    If filenames is provided, only process those files.
-    Otherwise, process all unprocessed files for the user.
-    """
-    try:
-        mdb = container.mdb()
-
-        # Build the filter
-        doc_filter = {"user_id": current_user.email}
-        if filenames:
-            doc_filter["filename"] = {"$in": filenames}
-        else:
-            doc_filter["processing_status"] = ProcessingStatus.PENDING
-
-        # Get files to process
-        files_to_process = await mdb.get_entries(
-            class_type=File,
-            doc_filter=doc_filter
-        )
-
-        if not files_to_process:
-            return {
-                "status": "success",
-                "message": "No files to process",
-                "data": {"processed_count": 0}
-            }
-
-        # Process each file
-        for file_record in files_to_process:
-            asyncio.create_task(process_file(file_record))
-
-        return {
-            "status": "success",
-            "message": f"Started processing {len(files_to_process)} files",
-            "data": {
-                "processed_count": len(files_to_process),
-                "files": [{"filename": file.filename, "unique_filename": file.unique_filename} for file in files_to_process]
-            }
-        }
-    except Exception as e:
-        raise HTTPException(status_code=500, detail=f"Error processing files: {str(e)}")
-
-@router.get("/status/{unique_filename}")
-async def get_file_status(
-    unique_filename: str,
-    current_user: User = Depends(get_current_user)
-):
-    """
-    Get the processing status and results of a file using its unique filename.
-    """
-    try:
-        # Check if the file exists and belongs to the user
-        mdb = container.mdb()
-        file_records = await mdb.get_entries(
-            class_type=File,
-            doc_filter={"user_id": current_user.email, "unique_filename": unique_filename}
-        )
-
-        if not file_records:
-            raise HTTPException(status_code=404, detail="File not found or you don't have permission to access it")
-
-        file_record = file_records[0]
-
-        return {
-            "status": "success",
-            "message": "File status retrieved successfully",
-            "data": {
-                "filename": file_record.filename,  # Return original filename for display
-                "unique_filename": file_record.unique_filename,
-                "processing_status": file_record.processing_status,
-                "processing_result": file_record.processing_result
-            }
-        }
-    except HTTPException:
-        raise
-    except Exception as e:
-        raise HTTPException(status_code=500, detail=f"Error retrieving file status: {str(e)}")
-
-@router.post("/poll/{unique_filename}")
-async def poll_file_results(
-    unique_filename: str,
-    current_user: User = Depends(get_current_user)
-):
-    """
-    Manually poll for results of a processed file using its unique filename.
-    """
-    try:
-        # Check if the file exists and belongs to the user
-        mdb = container.mdb()
-        file_records = await mdb.get_entries(
-            class_type=File,
-            doc_filter={"user_id": current_user.email, "unique_filename": unique_filename}
-        )
-
-        if not file_records:
-            raise HTTPException(status_code=404, detail="File not found or you don't have permission to access it")
-
-        file_record = file_records[0]
-
-        # Check if the file is in a state that can be polled
-        if file_record.processing_status != ProcessingStatus.PROCESSING:
-            return {
-                "status": "error",
-                "message": f"File is not in processing state. Current status: {file_record.processing_status}",
-                "data": {
-                    "filename": file_record.filename,
-                    "unique_filename": file_record.unique_filename,
-                    "processing_status": file_record.processing_status
-                }
-            }
-
-        # Start polling for results
-        asyncio.create_task(poll_for_results(file_record))
-
-        return {
-            "status": "success",
-            "message": "Started polling for results",
-            "data": {
-                "filename": file_record.filename,
-                "unique_filename": file_record.unique_filename,
-                "processing_status": file_record.processing_status
-            }
-        }
-    except HTTPException:
-        raise
-    except Exception as e:
-        raise HTTPException(status_code=500, detail=f"Error polling for results: {str(e)}")
-
-@router.get("/download/{unique_filename}")
-async def download_file(
-    unique_filename: str,
-    current_user: User = Depends(get_current_user)
-):
-    """
-    Download a file from the external file service using its unique filename.
-    """
-    try:
-        # Check if the file exists and belongs to the user
-        mdb = container.mdb()
-        file_records = await mdb.get_entries(
-            class_type=File,
-            doc_filter={"user_id": current_user.email, "unique_filename": unique_filename}
-        )
-
-        if not file_records:
-            raise HTTPException(status_code=404, detail="File not found or you don't have permission to access it")
-
-        file_record = file_records[0]
-
-        # Download file from external service
-        async with aiohttp.ClientSession() as session:
-            async with session.get(file_record.url) as response:
-                if response.status != 200:
-                    raise HTTPException(status_code=response.status, 
-                                       detail="Failed to download file from external service")
-
-                # Create a streaming response
-                content = await response.read()
-
-                # Use the original filename in the Content-Disposition header for the downloaded file
-                return StreamingResponse(
-                    iter([content]),
-                    media_type=file_record.content_type or "application/octet-stream",
-                    headers={"Content-Disposition": f"attachment; filename=\"{file_record.filename}\""}
-                )
-    except HTTPException:
-        raise
-    except Exception as e:
-        raise HTTPException(status_code=500, detail=f"Error downloading file: {str(e)}")

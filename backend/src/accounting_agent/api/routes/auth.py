@@ -82,7 +82,10 @@ async def login(user_data: UserLogin, response: Response):
         {"sub": str(user.user_id), "exp": expires}, secret, algorithm=algorithm
     )
     response.set_cookie(
-        key="access_token", value=f"Bearer {jwt_token}", httponly=True
+        key="access_token",
+        value=f"Bearer {jwt_token}",
+        samesite='lax',  # <-- ADD THIS LINE
+        httponly=True
     )
     return {"status": "success", "message": "Login successful",
             "data": {"access_token": jwt_token, "token_type": "bearer"}}
@@ -94,7 +97,9 @@ async def logout(response: Response):
     return {"status": "success", "message": "Logged out successfully"}
 
 
-async def get_current_user(request: Request, user_service: UserService = Depends(container.user_service)) -> User:
+async def get_current_user(request: Request) -> User:
+    user_service = container.user_service()
+
     token = request.cookies.get("access_token")
     if not token:
         raise HTTPException(status_code=401, detail="Not authenticated")

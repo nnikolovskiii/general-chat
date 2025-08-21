@@ -122,3 +122,95 @@ All colors MUST be HSL.
     @apply bg-background text-foreground;
   }
 }
+
+/* Audio Player Styles */
+@layer components {
+  .audio-player {
+    @apply w-full bg-card border border-border rounded-lg shadow-sm overflow-hidden;
+  }
+
+  .audio-error {
+    @apply flex items-center gap-2 p-3 bg-destructive/10 text-destructive border border-destructive/20 rounded-md;
+  }
+
+  .audio-loading {
+    @apply flex items-center justify-center gap-2 p-4 text-muted-foreground;
+  }
+
+  .loading-spinner {
+    @apply w-4 h-4 border-2 border-primary border-t-transparent rounded-full animate-spin;
+  }
+
+  .audio-controls {
+    @apply p-4 space-y-3;
+  }
+
+  .main-controls {
+    @apply flex items-center justify-center gap-2;
+  }
+
+  .control-btn {
+    @apply flex items-center justify-center w-10 h-10 bg-primary text-primary-foreground rounded-full 
+           hover:bg-primary/90 transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-primary 
+           disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:bg-primary;
+  }
+
+  .play-pause-btn {
+    @apply w-12 h-12 bg-primary text-primary-foreground;
+  }
+
+  .progress-container {
+    @apply flex items-center gap-3 w-full;
+  }
+
+  .time-display {
+    @apply text-sm font-mono text-muted-foreground min-w-[45px] text-center;
+  }
+
+  .progress-bar {
+    @apply flex-1 h-2 bg-muted rounded-full appearance-none cursor-pointer 
+           [&::-webkit-slider-thumb]:appearance-none [&::-webkit-slider-thumb]:w-4 [&::-webkit-slider-thumb]:h-4 
+           [&::-webkit-slider-thumb]:bg-primary [&::-webkit-slider-thumb]:rounded-full 
+           [&::-webkit-slider-thumb]:cursor-pointer [&::-webkit-slider-thumb]:hover:scale-110 
+           [&::-webkit-slider-thumb]:transition-transform [&::-moz-range-thumb]:w-4 
+           [&::-moz-range-thumb]:h-4 [&::-moz-range-thumb]:bg-primary 
+           [&::-moz-range-thumb]:rounded-full [&::-moz-range-thumb]:cursor-pointer 
+           [&::-moz-range-thumb]:border-0 [&::-moz-range-thumb]:hover:scale-110 
+           [&::-moz-range-thumb]:transition-transform;
+  }
+
+  .volume-container {
+    @apply flex items-center gap-2 w-full max-w-32;
+  }
+
+  .volume-icon {
+    @apply text-muted-foreground;
+  }
+
+  .volume-slider {
+    @apply flex-1 h-2 bg-muted rounded-full appearance-none cursor-pointer 
+           [&::-webkit-slider-thumb]:appearance-none [&::-webkit-slider-thumb]:w-3 [&::-webkit-slider-thumb]:h-3 
+           [&::-webkit-slider-thumb]:bg-primary [&::-webkit-slider-thumb]:rounded-full 
+           [&::-webkit-slider-thumb]:cursor-pointer [&::-webkit-slider-thumb]:hover:scale-110 
+           [&::-webkit-slider-thumb]:transition-transform [&::-moz-range-thumb]:w-3 
+           [&::-moz-range-thumb]:h-3 [&::-moz-range-thumb]:bg-primary 
+           [&::-moz-range-thumb]:rounded-full [&::-moz-range-thumb]:cursor-pointer 
+           [&::-moz-range-thumb]:border-0 [&::-moz-range-thumb]:hover:scale-110 
+           [&::-moz-range-thumb]:transition-transform;
+  }
+}
+
+/* Message Content Styles */
+@layer components {
+  .message-content {
+    @apply space-y-3;
+  }
+
+  .text-content {
+    @apply whitespace-pre-wrap break-words;
+  }
+
+  .audio-content {
+    @apply mt-2;
+  }
+}

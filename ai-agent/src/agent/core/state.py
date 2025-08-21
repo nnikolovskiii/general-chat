@@ -23,3 +23,7 @@ class State(TypedDict):
     answer: str
     agent_metadata: str
     ai_model: str
+    audio_path: str  # Path to the audio file
+    transcript: str  # Extracted text from the audio
+    enhanced_text: str  # Text after enhancement by LLM
+

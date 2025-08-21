@@ -9,6 +9,7 @@ from accounting_agent.api.routes.auth import router as auth_router
 from accounting_agent.api.routes.files import router as files_router
 from accounting_agent.api.routes.webhook import router as webhook_router
 from accounting_agent.api.routes.code import router as code_router
+from accounting_agent.api.routes.chat import router as chat_router
 
 # The postgres_db instance is created here, which is fine
 postgres_db = container.postgres_db()
@@ -58,6 +59,7 @@ app.include_router(auth_router, prefix="/auth", tags=["Authentication"])
 app.include_router(files_router, prefix="/files", tags=["Files"])
 app.include_router(webhook_router, prefix="/webhook", tags=["Webhook"])
 app.include_router(code_router, prefix="/codes", tags=["Codes"])
+app.include_router(chat_router, prefix="/chats", tags=["Chats"])
 
 
 @app.get("/")

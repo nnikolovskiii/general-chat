@@ -1,5 +1,6 @@
 import React, { useEffect, useRef } from 'react';
 import type { Message } from './ChatView';
+import AudioPlayer from './AudioPlayer';
 
 interface MessagesContainerProps {
   messages: Message[];
@@ -17,27 +18,39 @@ const MessagesContainer: React.FC<MessagesContainerProps> = ({ messages, isTypin
   }, [messages, isTyping]);
 
   const getMessageTypeIcon = (message: Message) => {
-    if (message.type === 'user') {
+    if (message.type === 'human') {
       return message.inputType === 'voice' ? '🎤' : '💬';
     }
     return '🤖';
   };
 
   const getMessageTypeLabel = (message: Message) => {
-    if (message.type === 'user') {
+    if (message.type === 'human') {
       return message.inputType === 'voice' ? 'Voice Message' : 'Text Message';
     }
     return 'AI Assistant';
   };
 
+  const getMessageClass = (message: Message) => {
+    // Map 'human' to 'user' for CSS compatibility
+    return message.type === 'human' ? 'user' : message.type;
+  };
+
   return (
     <div className="messages-container" ref={containerRef}>
       {messages.map(message => (
-        <div key={message.id} className={`message ${message.type}`}>
+        <div key={message.id} className={`message ${getMessageClass(message)}`}>
           <div className="message-type">
             {getMessageTypeIcon(message)} {getMessageTypeLabel(message)}
           </div>
-          {message.content}
+          <div className="message-content">
+            {message.content && <div className="text-content">{message.content}</div>}
+            {message.inputType === 'voice' && message.audioUrl && (
+              <div className="audio-content">
+                <AudioPlayer audioUrl={message.audioUrl} />
+              </div>
+            )}
+          </div>
         </div>
       ))}
       

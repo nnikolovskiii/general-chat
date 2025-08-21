@@ -9,6 +9,8 @@ interface ChatSidebarProps {
   onToggleCollapse: () => void;
   onCreateNewChat: () => void;
   onSwitchChat: (chatId: string) => void;
+  loading?: boolean;
+  creatingChat?: boolean;
 }
 
 const ChatSidebar: React.FC<ChatSidebarProps> = ({
@@ -17,7 +19,9 @@ const ChatSidebar: React.FC<ChatSidebarProps> = ({
   collapsed,
   onToggleCollapse,
   onCreateNewChat,
-  onSwitchChat
+  onSwitchChat,
+  loading,
+  creatingChat
 }) => {
   return (
     <div className={`chat-sidebar ${collapsed ? 'collapsed' : ''}`}>
@@ -29,13 +33,24 @@ const ChatSidebar: React.FC<ChatSidebarProps> = ({
         {collapsed ? '›' : '‹'}
       </button>
       
-      <button className="new-chat-btn" onClick={onCreateNewChat}>
-        <span>✨ New Chat Session</span>
-        {collapsed && '✨'}
+      <button 
+        className="new-chat-btn" 
+        onClick={onCreateNewChat}
+        disabled={creatingChat}
+      >
+        <span>
+          {creatingChat ? '⏳ Creating...' : '✨ New Chat Session'}
+        </span>
+        {collapsed && (creatingChat ? '⏳' : '✨')}
       </button>
       
       <div className="chat-sessions">
-        {chatSessions.length === 0 ? (
+        {loading ? (
+          <div className="loading-state">
+            <div className="loading-spinner"></div>
+            <div className="loading-text">Loading chats...</div>
+          </div>
+        ) : chatSessions.length === 0 ? (
           <div className="empty-state">
             <div className="empty-state-icon">💬</div>
             <div className="empty-state-text">

@@ -1,17 +1,11 @@
+/* Chat-view.css */
 .chat-view {
   font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
   background: linear-gradient(135deg, #667eea 0%, #764ba2 50%, #f093fb 100%);
   min-height: 100vh;
   display: flex;
   position: relative;
-}
-
-/* When used in dashboard context, adjust height and positioning */
-.main-content .chat-view {
-  min-height: calc(100vh - 64px);
-  height: calc(100vh - 64px);
-  margin: -32px;
-  border-radius: 0;
+  margin-left: 0;
 }
 
 .chat-view::before {
@@ -29,6 +23,87 @@
   z-index: 0;
 }
 
+/* Error Banner Styles */
+.error-banner {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  z-index: 1000;
+  background: rgba(220, 53, 69, 0.9);
+  backdrop-filter: blur(10px);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.2);
+  animation: slideDown 0.3s ease-out;
+}
+
+@keyframes slideDown {
+  from {
+    transform: translateY(-100%);
+    opacity: 0;
+  }
+  to {
+    transform: translateY(0);
+    opacity: 1;
+  }
+}
+
+.error-content {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 12px 20px;
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+.error-icon {
+  font-size: 16px;
+  margin-right: 10px;
+}
+
+.error-message {
+  color: rgba(255, 255, 255, 0.95);
+  font-size: 14px;
+  font-weight: 500;
+  flex: 1;
+}
+
+.error-dismiss {
+  background: none;
+  border: none;
+  color: rgba(255, 255, 255, 0.8);
+  font-size: 20px;
+  cursor: pointer;
+  padding: 0;
+  width: 24px;
+  height: 24px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  transition: all 0.2s ease;
+}
+
+.error-dismiss:hover {
+  background: rgba(255, 255, 255, 0.1);
+  color: rgba(255, 255, 255, 1);
+}
+
+/* When used in dashboard context, adjust height and positioning */
+.main-content .chat-view {
+  min-height: calc(100vh - 64px);
+  height: calc(100vh - 64px);
+  margin: -32px;
+  border-radius: 0;
+}
+
+.main-content .chat-view .main-chat {
+  margin-left: 258px; /* 280px - 32px offset + 10px margin */
+}
+
+.main-content .chat-view.sidebar-collapsed .main-chat {
+  margin-left: 48px; /* 70px - 32px offset + 10px margin */
+}
 
 .main-chat {
   flex: 1;
@@ -37,10 +112,20 @@
   background: rgba(255, 255, 255, 0.05);
   backdrop-filter: blur(20px);
   border-radius: 0 20px 20px 0;
-  margin: 10px 10px 10px 0;
+  margin: 10px 10px 10px 290px;
   box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
   position: relative;
   z-index: 10;
+}
+
+@media (max-width: 768px) {
+  .main-chat {
+    margin-left: 10px;
+  }
+}
+
+.chat-view.sidebar-collapsed .main-chat {
+  margin-left: 80px;
 }
 
 /* Adjust main-chat for dashboard context */
