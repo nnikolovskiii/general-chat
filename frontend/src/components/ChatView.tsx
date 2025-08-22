@@ -1,5 +1,3 @@
-// Path: frontend/src/components/ChatView.tsx
-
 import React, { useState, useEffect, useCallback } from 'react';
 import ChatSidebar from './ChatSidebar';
 import ChatHeader from './ChatHeader';
@@ -52,11 +50,24 @@ const convertBackendMessages = (messages: BackendMessage[]): Message[] => {
 const ChatView: React.FC = () => {
   const [chatSessions, setChatSessions] = useState<ChatSession[]>([]);
   const [currentChatId, setCurrentChatId] = useState<string | null>(null);
-  const [sidebarCollapsed, setSidebarCollapsed] = useState(window.innerWidth <= 768);
+  const [isSidebarOpen, setIsSidebarOpen] = useState(window.innerWidth > 768);
+  const [isMobile, setIsMobile] = useState(window.innerWidth <= 768);
   const [isTyping, setIsTyping] = useState(false);
   const [loadingChats, setLoadingChats] = useState(true);
   const [creatingChat, setCreatingChat] = useState(false);
   const [error, setError] = useState<string | null>(null);
+
+  useEffect(() => {
+    const handleResize = () => {
+        const mobile = window.innerWidth <= 768;
+        setIsMobile(mobile);
+        if (!mobile) { // On desktop, always show sidebar
+            setIsSidebarOpen(true);
+        }
+    };
+    window.addEventListener('resize', handleResize);
+    return () => window.removeEventListener('resize', handleResize);
+  }, []);
 
   // Memoized fetch function for messages to avoid re-renders
   const fetchMessagesForCurrentChat = useCallback(async () => {
@@ -70,26 +81,7 @@ const ChatView: React.FC = () => {
 
     try {
       const backendMessages = await fetchThreadMessages(currentChat.thread_id);
-
-      // --- ADDED CONSOLE LOG ---
-      console.log("--- Fetched Backend Messages for Thread:", currentChat.thread_id, "---");
-      console.log(JSON.stringify(backendMessages, null, 2));
-      // --- END OF ADDED CONSOLE LOG ---
-
       const convertedMessages = convertBackendMessages(backendMessages);
-
-      // --- DEBUG LOG ---
-      console.log("--- Converted Messages ---");
-      convertedMessages.forEach((msg, index) => {
-        console.log(`Message ${index}:`, {
-          id: msg.id,
-          type: msg.type,
-          content: msg.content,
-          audioUrl: msg.audioUrl,
-          additional_kwargs: msg.additional_kwargs
-        });
-      });
-      // --- END DEBUG LOG ---
 
       setChatSessions(prev => prev.map(chat =>
           chat.id === currentChatId
@@ -177,6 +169,9 @@ const ChatView: React.FC = () => {
 
       setChatSessions(prev => [newChat, ...prev]); // Add to the top of the list
       setCurrentChatId(newChat.id);
+      if (isMobile) {
+        setIsSidebarOpen(false);
+      }
     } catch (err) {
       const errorMessage = err instanceof Error ? err.message : 'Failed to create new chat.';
       console.error('Error creating new chat:', errorMessage);
@@ -188,8 +183,8 @@ const ChatView: React.FC = () => {
 
   const switchToChat = (chatId: string) => {
     setCurrentChatId(chatId);
-    if (window.innerWidth <= 768) {
-      setSidebarCollapsed(true);
+    if (isMobile) {
+      setIsSidebarOpen(false);
     }
   };
 
@@ -219,19 +214,15 @@ const ChatView: React.FC = () => {
       return;
     }
 
-    // Don't send if both text and audio are empty.
     if (!text?.trim() && !audioPath) return;
 
     setIsTyping(true);
 
-    // Add optimistic message to UI immediately.
     const optimisticText = text || "Audio message sent...";
     addOptimisticMessage(optimisticText, audioPath);
 
     try {
       await sendMessageToThread(currentChat.thread_id, text, audioPath);
-      // After sending, wait a moment then refresh the message history from the backend
-      // to get the true state.
       setTimeout(async () => {
         await fetchMessagesForCurrentChat();
         setIsTyping(false);
@@ -241,40 +232,41 @@ const ChatView: React.FC = () => {
       console.error('Error sending message:', errorMessage);
       setError(`Failed to send message: ${errorMessage}`);
       setIsTyping(false);
-      // Optionally, remove the optimistic message on failure or show an error state.
     }
   };
 
   const currentChat = chatSessions.find(chat => chat.id === currentChatId);
 
   return (
-      <div className={`chat-view ${sidebarCollapsed ? 'sidebar-collapsed' : ''}`}>
-        {error && (
-            <div className="error-banner">
-              <div className="error-content">
-                <span className="error-icon">⚠️</span>
-                <span className="error-message">{error}</span>
-                <button className="error-dismiss" onClick={() => setError(null)}>×</button>
-              </div>
-            </div>
+      <div className="chat-view-wrapper">
+        {isMobile && (
+            <div 
+              className={`mobile-overlay ${isSidebarOpen ? 'visible' : ''}`}
+              onClick={() => setIsSidebarOpen(false)}
+            />
         )}
+        <div className={`chat-sidebar-container ${isMobile ? 'mobile' : ''}`}>
+            <ChatSidebar
+                chatSessions={chatSessions}
+                currentChatId={currentChatId}
+                collapsed={!isSidebarOpen}
+                onToggleCollapse={() => setIsSidebarOpen(!isSidebarOpen)}
+                onCreateNewChat={createNewChat}
+                onSwitchChat={switchToChat}
+                loading={loadingChats}
+                creatingChat={creatingChat}
+            />
+        </div>
 
-        <ChatSidebar
-            chatSessions={chatSessions}
-            currentChatId={currentChatId}
-            collapsed={sidebarCollapsed}
-            onToggleCollapse={() => setSidebarCollapsed(!sidebarCollapsed)}
-            onCreateNewChat={createNewChat}
-            onSwitchChat={switchToChat}
-            loading={loadingChats}
-            creatingChat={creatingChat}
-        />
-
-        <div className="main-chat">
-          <ChatHeader title={currentChat?.title || 'Chat'} />
+        <main className="main-chat-area">
+          <ChatHeader 
+            title={currentChat?.title || 'Chat'} 
+            isMobile={isMobile}
+            onMenuClick={() => setIsSidebarOpen(true)}
+          />
           <MessagesContainer messages={currentChat?.messages || []} isTyping={isTyping} />
           <InputArea onSendMessage={handleSendMessage} disabled={creatingChat || isTyping} />
-        </div>
+        </main>
       </div>
   );
 };

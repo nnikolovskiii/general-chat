@@ -1,14 +1,11 @@
-// Path: frontend/src/components/InputArea.tsx
-
 import React, { useState, useRef, useCallback } from 'react';
 import { buildApiUrl } from '../lib/api';
+import { Mic, Paperclip, Send } from 'lucide-react';
 
 interface InputAreaProps {
   onSendMessage: (text?: string, audioPath?: string) => void;
   disabled?: boolean;
 }
-
-// --- START OF REFACTORED CODE ---
 
 const InputArea: React.FC<InputAreaProps> = ({ onSendMessage, disabled = false }) => {
   const [textInput, setTextInput] = useState('');
@@ -16,13 +13,10 @@ const InputArea: React.FC<InputAreaProps> = ({ onSendMessage, disabled = false }
   const mediaRecorderRef = useRef<MediaRecorder | null>(null);
   const textareaRef = useRef<HTMLTextAreaElement>(null);
 
-  // Auto-resize textarea as user types
   const autoResize = useCallback(() => {
     if (textareaRef.current) {
-      textareaRef.current.style.height = 'auto'; // Reset height
-      const scrollHeight = textareaRef.current.scrollHeight;
-      // Set a max-height (e.g., 120px) to prevent it from growing indefinitely
-      textareaRef.current.style.height = `${Math.min(scrollHeight, 120)}px`;
+      textareaRef.current.style.height = 'auto';
+      textareaRef.current.style.height = `${textareaRef.current.scrollHeight}px`;
     }
   }, []);
 
@@ -42,11 +36,10 @@ const InputArea: React.FC<InputAreaProps> = ({ onSendMessage, disabled = false }
     }
   };
 
-  // Handle Enter key press for sending text messages
   const handleKeyPress = (e: React.KeyboardEvent<HTMLTextAreaElement>) => {
     if (e.key === 'Enter' && !e.shiftKey) {
-      e.preventDefault(); // Prevent new line
-      if (!disabled) {
+      e.preventDefault();
+      if (!disabled && textInput.trim()) {
         sendTextMessage();
       }
     }
@@ -64,7 +57,6 @@ const InputArea: React.FC<InputAreaProps> = ({ onSendMessage, disabled = false }
 
     if (!response.ok) {
       const errorText = await response.text();
-      console.error('Failed to upload audio blob:', response.status, errorText);
       throw new Error(`Upload failed: ${response.statusText}`);
     }
     return response.json();
@@ -73,8 +65,7 @@ const InputArea: React.FC<InputAreaProps> = ({ onSendMessage, disabled = false }
   const processAudioRecording = async (audioBlob: Blob) => {
     try {
       const timestamp = new Date().toISOString().replace(/[:.]/g, '-');
-      const filename = `recording-${timestamp}.wav`;
-
+      const filename = `recording-${timestamp}.webm`;
       const uploadResult = await uploadAudioBlob(audioBlob, filename);
       const backendFilename = uploadResult.data?.unique_filename;
 
@@ -83,18 +74,13 @@ const InputArea: React.FC<InputAreaProps> = ({ onSendMessage, disabled = false }
       }
 
       const audioPath = `https://files.nikolanikolovski.com/test/download/${backendFilename}`;
-
-      // Send both the current text input and the new audio path
       onSendMessage(textInput, audioPath);
-      setTextInput(''); // Clear text input after sending
+      setTextInput('');
       if (textareaRef.current) {
         textareaRef.current.style.height = 'auto';
       }
-
     } catch (error) {
-      console.error('Error processing audio recording:', error);
       const errorMessage = error instanceof Error ? error.message : 'Unknown error';
-      // Send an error message back to the user in the chat
       onSendMessage(`[Error] Failed to process audio: ${errorMessage}`);
     }
   };
@@ -112,7 +98,7 @@ const InputArea: React.FC<InputAreaProps> = ({ onSendMessage, disabled = false }
       recorder.onstop = () => {
         const audioBlob = new Blob(chunks, { type: 'audio/webm' });
         processAudioRecording(audioBlob);
-        stream.getTracks().forEach(track => track.stop()); // Release microphone
+        stream.getTracks().forEach(track => track.stop());
       };
 
       recorder.start();
@@ -130,44 +116,53 @@ const InputArea: React.FC<InputAreaProps> = ({ onSendMessage, disabled = false }
     }
   };
 
+  const handleMicClick = () => {
+    if (isRecording) {
+      stopRecording();
+    } else {
+      startRecording();
+    }
+  };
+
   return (
+    <div className="input-area-wrapper">
       <div className="input-area">
-        <div className="text-input-container">
-        <textarea
+        <div className="input-form">
+          <button className="icon-button" title="Attach file" disabled={disabled}>
+            <Paperclip size={20} />
+          </button>
+          <textarea
             ref={textareaRef}
             className="text-input"
-            placeholder="Type a message (Enter to send) or hold the mic to record"
+            placeholder="How can Grok help?"
             value={textInput}
             onChange={handleTextChange}
             onKeyPress={handleKeyPress}
             rows={1}
             disabled={disabled}
-        />
+          />
           <button
-              className={`send-voice-btn ${isRecording ? 'recording' : ''}`}
-              // Use mouse/touch events for hold-to-record functionality
-              onMouseDown={startRecording}
-              onMouseUp={stopRecording}
-              onMouseLeave={stopRecording} // Stop if mouse leaves button area
-              onTouchStart={startRecording}
-              onTouchEnd={stopRecording}
-              disabled={disabled}
-              title="Hold to Record Audio"
+            className={`icon-button ${isRecording ? 'recording' : ''}`}
+            onClick={handleMicClick}
+            disabled={disabled}
+            title={isRecording ? "Stop Recording" : "Start Recording"}
           >
-            <div className="btn-content">
-            <span className="send-btn-text">
-              {isRecording ? 'Recording...' : '🎤'}
-            </span>
-              <span className="send-btn-icon">
-              {isRecording ? '🔴' : '🎤'}
-            </span>
-            </div>
-            {isRecording && <div className="recording-indicator" />}
+            <Mic size={20} />
           </button>
+          {textInput.trim() && (
+            <button
+              className="icon-button send-btn"
+              onClick={sendTextMessage}
+              disabled={disabled}
+              title="Send Message"
+            >
+              <Send size={20} />
+            </button>
+          )}
         </div>
       </div>
+    </div>
   );
 };
 
 export default InputArea;
-// --- END OF REFACTORED CODE ---

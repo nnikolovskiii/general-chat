@@ -1,6 +1,7 @@
 import React from 'react';
 import './ChatSidebar.css';
 import type { ChatSession } from './ChatView';
+import { BotMessageSquare, ChevronLeft, File, Folder, History, MessageSquare, Mic, Search, Plus, CheckSquare, User } from 'lucide-react';
 
 interface ChatSidebarProps {
   chatSessions: ChatSession[];
@@ -21,66 +22,80 @@ const ChatSidebar: React.FC<ChatSidebarProps> = ({
   onCreateNewChat,
   onSwitchChat,
   loading,
-  creatingChat
+  creatingChat,
 }) => {
+
+  const navItems = [
+    { icon: <MessageSquare size={18} />, label: 'Chat', active: true },
+    { icon: <Mic size={18} />, label: 'Voice' },
+    { icon: <File size={18} />, label: 'Files' },
+    { icon: <CheckSquare size={18} />, label: 'Tasks' },
+    { icon: <Folder size={18} />, label: 'Projects' },
+  ];
+
   return (
-    <div className={`chat-sidebar ${collapsed ? 'collapsed' : ''}`}>
-      <button 
-        className="collapse-btn" 
-        onClick={onToggleCollapse}
-        title={collapsed ? 'Expand sidebar' : 'Collapse sidebar'}
-      >
-        {collapsed ? '›' : '‹'}
-      </button>
-      
-      <button 
-        className="new-chat-btn" 
-        onClick={onCreateNewChat}
-        disabled={creatingChat}
-      >
-        <span>
-          {creatingChat ? '⏳ Creating...' : '✨ New Chat Session'}
-        </span>
-        {collapsed && (creatingChat ? '⏳' : '✨')}
-      </button>
-      
-      <div className="chat-sessions">
-        {loading ? (
-          <div className="loading-state">
-            <div className="loading-spinner"></div>
-            <div className="loading-text">Loading chats...</div>
-          </div>
-        ) : chatSessions.length === 0 ? (
-          <div className="empty-state">
-            <div className="empty-state-icon">💬</div>
-            <div className="empty-state-text">
-              No chat sessions yet.<br />
-              Create your first chat to get started!
+    <aside className={`chat-sidebar ${collapsed ? 'collapsed' : ''}`}>
+        <div className="sidebar-content">
+
+            <header className="sidebar-header">
+                <div className="sidebar-logo">
+                    <BotMessageSquare size={24} />
+                    <span>AI Assistant</span>
+                </div>
+                <button className="collapse-btn" onClick={onToggleCollapse} title="Collapse sidebar">
+                    <ChevronLeft size={18} />
+                </button>
+            </header>
+
+            <div className="sidebar-search">
+                <Search size={16} className="sidebar-search-icon" />
+                <input type="text" placeholder="Search Ctrl+K" className="sidebar-search-input" />
             </div>
-          </div>
-        ) : (
-          chatSessions.map(chat => {
-            const lastMessage = chat.messages && chat.messages.length > 0 
-              ? chat.messages[chat.messages.length - 1]
-              : null;
-            const preview = lastMessage 
-              ? lastMessage.content.substring(0, 50) + (lastMessage.content.length > 50 ? '...' : '')
-              : 'No messages yet';
-            
-            return (
-              <div
-                key={chat.id}
-                className={`chat-session ${chat.id === currentChatId ? 'active' : ''}`}
-                onClick={() => onSwitchChat(chat.id)}
-              >
-                <div className="chat-title">{chat.title || `Chat ${chat.id.slice(0, 8)}`}</div>
-                <div className="chat-preview">{preview}</div>
-              </div>
-            );
-          })
-        )}
-      </div>
-    </div>
+
+            <nav className="sidebar-nav">
+                {navItems.map(item => (
+                    <a href="#" key={item.label} className={`nav-item ${item.active ? 'active' : ''}`}>
+                        {item.icon}
+                        <span>{item.label}</span>
+                    </a>
+                ))}
+            </nav>
+
+            <section className="history-section">
+                <div className="history-header">
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+                        <History size={16} />
+                        <span>History</span>
+                    </div>
+                    <button className="new-chat-btn" onClick={onCreateNewChat} disabled={creatingChat} title="New Chat">
+                        {creatingChat ? <div className="loading-spinner" style={{width: 16, height: 16}}></div> : <Plus size={16} />}
+                    </button>
+                </div>
+                <div className="chat-sessions">
+                    {loading ? (
+                        <div className="loading-state">
+                            <div className="loading-spinner"></div>
+                            <div>Loading chats...</div>
+                        </div>
+                    ) : chatSessions.length === 0 ? (
+                        <div className="empty-state">
+                            No chat sessions yet.
+                        </div>
+                    ) : (
+                        chatSessions.map(chat => (
+                            <div
+                                key={chat.id}
+                                className={`chat-session ${chat.id === currentChatId ? 'active' : ''}`}
+                                onClick={() => onSwitchChat(chat.id)}
+                            >
+                                <div className="chat-title">{chat.title || `Chat ${chat.id.slice(0, 8)}`}</div>
+                            </div>
+                        ))
+                    )}
+                </div>
+            </section>
+        </div>
+    </aside>
   );
 };
 
