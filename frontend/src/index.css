@@ -213,4 +213,19 @@ All colors MUST be HSL.
   .audio-content {
     @apply mt-2;
   }
+
+  .message-toggle-container {
+    @apply flex justify-end mb-2;
+  }
+
+  .message-toggle-button {
+    @apply flex items-center gap-2 px-3 py-1.5 bg-muted hover:bg-muted/80 text-muted-foreground 
+           hover:text-foreground text-sm font-medium rounded-md transition-all duration-200 
+           border border-border hover:border-border/80 focus:outline-none focus:ring-2 
+           focus:ring-primary/20 focus:border-primary;
+  }
+
+  .message-toggle-button:hover {
+    @apply shadow-sm;
+  }
 }

@@ -81,6 +81,6 @@ async def main(thread_id: str):
 
 if __name__ == "__main__":
     # --- Argument parsing is now handled here, outside of the main logic ---
-    thread_id_from_cli = "c336a4c2-6260-4e93-8d6a-c946d9239b75"
+    thread_id_from_cli = "f734240e-47d1-446d-b212-d620891be559"
     # Run the asynchronous main function, passing the thread_id as an argument
     asyncio.run(main(thread_id=thread_id_from_cli))

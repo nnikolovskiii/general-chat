@@ -1,3 +1,5 @@
+// Path: frontend/src/lib/api.ts
+
 // Centralized API configuration
 
 // First, try to get the URL from the runtime environment injected by Docker
@@ -43,6 +45,18 @@ export const API_CONFIG = {
     }
 };
 
+// --- START OF REFACTORED CODE ---
+
+// Type definition for the message structure from the LangChain backend
+export interface BackendMessage {
+    type: 'human' | 'ai' | 'system';
+    content: string;
+    additional_kwargs?: {
+        file_url?: string;
+        [key: string]: any;
+    };
+}
+
 // Helper function to build full API URLs
 export const buildApiUrl = (endpoint: string) => {
     return `${API_CONFIG.getApiUrl()}${endpoint}`;
@@ -60,20 +74,20 @@ export const getFilesUrl = (endpoint: keyof typeof API_CONFIG.ENDPOINTS.FILES, p
 
 export const getChatsUrl = (endpoint: string = '') => {
     const baseUrl = buildApiUrl(API_CONFIG.ENDPOINTS.CHATS);
-    return endpoint ? `${baseUrl}/${endpoint}` : baseUrl;
+    return endpoint ? `${baseUrl}${endpoint}` : baseUrl;
 };
 
 // New langgraph-specific API functions
 export const getThreadMessagesUrl = (threadId: string) => {
-    return getChatsUrl(`${threadId}/messages`);
+    return getChatsUrl(`/${threadId}/messages`);
 };
 
 export const sendMessageToThreadUrl = (threadId: string) => {
-    return getChatsUrl(`${threadId}/send`);
+    return getChatsUrl(`/${threadId}/send`);
 };
 
 // API functions for langgraph integration
-export const fetchThreadMessages = async (threadId: string): Promise<Array<{content: string, type: string}>> => {
+export const fetchThreadMessages = async (threadId: string): Promise<BackendMessage[]> => {
     const response = await fetch(getThreadMessagesUrl(threadId), {
         method: 'GET',
         credentials: 'include',
@@ -83,19 +97,22 @@ export const fetchThreadMessages = async (threadId: string): Promise<Array<{cont
     });
 
     if (!response.ok) {
-        throw new Error(`Failed to fetch messages: ${response.statusText}`);
+        const errorText = await response.text();
+        throw new Error(`Failed to fetch messages: ${response.statusText} (${errorText})`);
     }
 
+    // The backend returns the list of messages directly
     return response.json();
 };
 
 export const sendMessageToThread = async (threadId: string, message?: string, audioPath?: string): Promise<{status: string, message: string}> => {
     const payload: { message?: string; audio_path?: string } = {};
-    
-    if (message) {
+
+    // Only include non-empty message
+    if (message && message.trim()) {
         payload.message = message;
     }
-    
+
     if (audioPath) {
         payload.audio_path = audioPath;
     }
@@ -110,14 +127,15 @@ export const sendMessageToThread = async (threadId: string, message?: string, au
     });
 
     if (!response.ok) {
-        throw new Error(`Failed to send message: ${response.statusText}`);
+        const errorText = await response.text();
+        throw new Error(`Failed to send message: ${response.statusText} (${errorText})`);
     }
 
     return response.json();
 };
 
 export const createNewThread = async (title: string): Promise<{chat_id: string, thread_id: string, title: string, created_at: string}> => {
-    const response = await fetch(getChatsUrl('create-thread'), {
+    const response = await fetch(getChatsUrl('/create-thread'), {
         method: 'POST',
         credentials: 'include',
         headers: {
@@ -127,8 +145,11 @@ export const createNewThread = async (title: string): Promise<{chat_id: string, 
     });
 
     if (!response.ok) {
-        throw new Error(`Failed to create thread: ${response.statusText}`);
+        const errorText = await response.text();
+        throw new Error(`Failed to create thread: ${response.statusText} (${errorText})`);
     }
 
     return response.json();
 };
+
+// --- END OF REFACTORED CODE ---

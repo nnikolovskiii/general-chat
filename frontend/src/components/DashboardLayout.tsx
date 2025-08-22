@@ -4,17 +4,20 @@ import { Link, Outlet, useLocation } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
 import './DashboardLayout.css';
 
-const getInitials = (name: string | undefined) => {
-    if (!name) return 'U';
-    const names = name.split(' ');
-    if (names.length > 1) {
-        return `${names[0][0]}${names[names.length - 1][0]}`.toUpperCase();
+const getInitials = (name: string | undefined, surname: string | undefined) => {
+    if (!name && !surname) return 'U';
+    if (name && surname) {
+        return `${name[0]}${surname[0]}`.toUpperCase();
     }
-    return names[0].substring(0, 2).toUpperCase();
+    if (name) return name.substring(0, 2).toUpperCase();
+    if (surname) return surname.substring(0, 2).toUpperCase();
+    return 'U';
 };
 
 const Header: React.FC = () => {
     const { user } = useAuth();
+    const fullName = user?.name && user?.surname ? `${user.name} ${user.surname}` : user?.username || 'User';
+    
     return (
         <div className="header">
             <div className="header-left">
@@ -26,9 +29,9 @@ const Header: React.FC = () => {
             </div>
             <div className="header-right">
                 <div className="user-info">
-                    <div className="user-avatar">{getInitials(user?.full_name)}</div>
+                    <div className="user-avatar">{getInitials(user?.name, user?.surname)}</div>
                     <div>
-                        <div style={{ fontSize: '14px', fontWeight: 600 }}>{user?.full_name}</div>
+                        <div style={{ fontSize: '14px', fontWeight: 600 }}>{fullName}</div>
                         <div style={{ fontSize: 12, color: '#a0aec0' }}>Personal</div>
                     </div>
                 </div>
@@ -69,6 +72,10 @@ const Sidebar: React.FC<{ isCollapsed: boolean; toggleCollapse: () => void }> = 
                 <Link to="/chat" className={`sidebar-item ${location.pathname === '/chat' ? 'active' : ''}`}>
                     <div className="sidebar-item-icon">💬</div>
                     {!isCollapsed && 'Voice & Text Chat'}
+                </Link>
+                <Link to="/thread-view" className={`sidebar-item ${location.pathname === '/thread-view' ? 'active' : ''}`}>
+                    <div className="sidebar-item-icon">🧵</div>
+                    {!isCollapsed && 'Thread Messages Viewer'}
                 </Link>
             </div>
 

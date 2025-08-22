@@ -1,24 +1,28 @@
+// Path: frontend/src/components/InputArea.tsx
+
 import React, { useState, useRef, useCallback } from 'react';
-import { buildApiUrl } from '../lib/api'; // Import buildApiUrl
+import { buildApiUrl } from '../lib/api';
 
 interface InputAreaProps {
-  onSendMessage: (inputType: 'voice' | 'text', message?: string, audioPath?: string) => void;
+  onSendMessage: (text?: string, audioPath?: string) => void;
   disabled?: boolean;
 }
+
+// --- START OF REFACTORED CODE ---
 
 const InputArea: React.FC<InputAreaProps> = ({ onSendMessage, disabled = false }) => {
   const [textInput, setTextInput] = useState('');
   const [isRecording, setIsRecording] = useState(false);
-  const [mediaRecorder, setMediaRecorder] = useState<MediaRecorder | null>(null);
-  const [audioChunks, setAudioChunks] = useState<Blob[]>([]);
+  const mediaRecorderRef = useRef<MediaRecorder | null>(null);
   const textareaRef = useRef<HTMLTextAreaElement>(null);
 
-  // Auto-resize textarea
+  // Auto-resize textarea as user types
   const autoResize = useCallback(() => {
     if (textareaRef.current) {
-      textareaRef.current.style.height = 'auto';
-      const newHeight = Math.min(textareaRef.current.scrollHeight, 120);
-      textareaRef.current.style.height = newHeight + 'px';
+      textareaRef.current.style.height = 'auto'; // Reset height
+      const scrollHeight = textareaRef.current.scrollHeight;
+      // Set a max-height (e.g., 120px) to prevent it from growing indefinitely
+      textareaRef.current.style.height = `${Math.min(scrollHeight, 120)}px`;
     }
   }, []);
 
@@ -27,192 +31,143 @@ const InputArea: React.FC<InputAreaProps> = ({ onSendMessage, disabled = false }
     autoResize();
   };
 
-  const handleKeyPress = (e: React.KeyboardEvent<HTMLTextAreaElement>) => {
-    if (e.key === 'Enter' && !e.shiftKey) {
-      e.preventDefault();
-      sendTextMessage();
-    }
-  };
-
   const sendTextMessage = () => {
     const message = textInput.trim();
     if (!message) return;
 
-    onSendMessage( 'text', message);
+    onSendMessage(message, undefined);
     setTextInput('');
-    
-    // Reset textarea height
     if (textareaRef.current) {
       textareaRef.current.style.height = 'auto';
     }
   };
 
+  // Handle Enter key press for sending text messages
+  const handleKeyPress = (e: React.KeyboardEvent<HTMLTextAreaElement>) => {
+    if (e.key === 'Enter' && !e.shiftKey) {
+      e.preventDefault(); // Prevent new line
+      if (!disabled) {
+        sendTextMessage();
+      }
+    }
+  };
+
+  const uploadAudioBlob = async (blob: Blob, filename: string): Promise<{ data: { unique_filename: string } }> => {
+    const formData = new FormData();
+    formData.append('file', blob, filename);
+
+    const response = await fetch(buildApiUrl('/files/upload'), {
+      method: 'POST',
+      body: formData,
+      credentials: 'include',
+    });
+
+    if (!response.ok) {
+      const errorText = await response.text();
+      console.error('Failed to upload audio blob:', response.status, errorText);
+      throw new Error(`Upload failed: ${response.statusText}`);
+    }
+    return response.json();
+  };
+
+  const processAudioRecording = async (audioBlob: Blob) => {
+    try {
+      const timestamp = new Date().toISOString().replace(/[:.]/g, '-');
+      const filename = `recording-${timestamp}.wav`;
+
+      const uploadResult = await uploadAudioBlob(audioBlob, filename);
+      const backendFilename = uploadResult.data?.unique_filename;
+
+      if (!backendFilename) {
+        throw new Error("Backend did not return a valid filename for the audio.");
+      }
+
+      const audioPath = `https://files.nikolanikolovski.com/test/download/${backendFilename}`;
+
+      // Send both the current text input and the new audio path
+      onSendMessage(textInput, audioPath);
+      setTextInput(''); // Clear text input after sending
+      if (textareaRef.current) {
+        textareaRef.current.style.height = 'auto';
+      }
+
+    } catch (error) {
+      console.error('Error processing audio recording:', error);
+      const errorMessage = error instanceof Error ? error.message : 'Unknown error';
+      // Send an error message back to the user in the chat
+      onSendMessage(`[Error] Failed to process audio: ${errorMessage}`);
+    }
+  };
+
   const startRecording = async () => {
+    if (isRecording) return;
     try {
       const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
-      const recorder = new MediaRecorder(stream);
-      const chunks: Blob[] = [];
+      const recorder = new MediaRecorder(stream, { mimeType: 'audio/webm' });
+      mediaRecorderRef.current = recorder;
 
-      recorder.ondataavailable = (event) => {
-        chunks.push(event.data);
-      };
+      const chunks: Blob[] = [];
+      recorder.ondataavailable = (event) => chunks.push(event.data);
 
       recorder.onstop = () => {
-        const audioBlob = new Blob(chunks, { type: 'audio/wav' });
+        const audioBlob = new Blob(chunks, { type: 'audio/webm' });
         processAudioRecording(audioBlob);
-        
-        // Stop all tracks to release microphone
-        stream.getTracks().forEach(track => track.stop());
+        stream.getTracks().forEach(track => track.stop()); // Release microphone
       };
 
       recorder.start();
-      setMediaRecorder(recorder);
-      setAudioChunks(chunks);
       setIsRecording(true);
-    } catch (error) {
-      console.error('Error starting recording:', error);
-      alert('Unable to access microphone. Please check your browser settings.');
+    } catch (err) {
+      console.error('Error starting recording:', err);
+      alert('Could not access microphone. Please check browser permissions.');
     }
   };
 
   const stopRecording = () => {
-    if (mediaRecorder && isRecording) {
-      mediaRecorder.stop();
+    if (mediaRecorderRef.current && isRecording) {
+      mediaRecorderRef.current.stop();
       setIsRecording(false);
-      setMediaRecorder(null);
-    }
-  };
-
-  const generateAudioFilename = (extension = 'wav'): string => {
-    const timestamp = new Date().toISOString().replace(/[:.]/g, '-');
-    const randomString = Math.random().toString(36).substring(2, 8);
-    return `audio-${timestamp}-${randomString}.${extension}`;
-  };
-
-  const uploadAudioBlob = async (blob: Blob, filename: string) => {
-    console.log('Uploading audio blob:', { blobSize: blob.size, blobType: blob.type, filename });
-    const formData = new FormData();
-    formData.append('file', blob, filename);
-
-    try {
-      const response = await fetch(buildApiUrl('/files/upload'), {
-        method: 'POST',
-        body: formData,
-        // 'Content-Type' header is automatically set by FormData for multipart/form-data
-        // Credentials might be needed if the endpoint is protected
-        credentials: 'include',
-      });
-
-      if (!response.ok) {
-        const errorText = await response.text();
-        console.error('Failed to upload audio blob:', response.status, errorText);
-        throw new Error(`Upload failed: ${response.statusText} - ${errorText}`);
-      }
-
-      const result = await response.json();
-      console.log('Audio blob uploaded successfully:', result);
-      // You might want to do something with the result, e.g., store the file ID
-      return result;
-    } catch (error) {
-      console.error('Error during audio blob upload:', error);
-      // Optionally, re-throw or handle the error as needed
-      throw error;
-    }
-  };
-
-  const processAudioRecording = async (audioBlob: Blob) => {
-    console.log('Processing audio recording:', { blobSize: audioBlob.size, blobType: audioBlob.type });
-    const filename = generateAudioFilename();
-    console.log('Generated filename for audio:', filename);
-
-    try {
-      // Upload the audio blob
-      const uploadResult = await uploadAudioBlob(audioBlob, filename);
-      console.log('Audio upload process completed.', uploadResult);
-
-      // Use the unique_filename generated by the backend
-      const backendFilename = uploadResult.data?.unique_filename;
-      if (backendFilename) {
-        console.log(`Using backend-generated filename: ${backendFilename}`);
-        // Create the audio path URL
-        const audioPath = `https://files.nikolanikolovski.com/test/download/${backendFilename}`;
-        console.log(`Created audio path: ${audioPath}`);
-        
-        // Send both the audio path and a text message
-        onSendMessage('voice',undefined,  audioPath);
-      } else {
-        console.error('Backend did not return a unique_filename. Using frontend generated filename as fallback.', filename);
-        // Fallback to frontend generated filename if backend doesn't provide one (should not happen with current backend logic)
-        const audioPath = `https://files.nikolanikolovski.com/test/download/${filename}`;
-        onSendMessage('voice', undefined, audioPath);
-      }
-    } catch (error) {
-      console.error('Error in processAudioRecording:', error);
-      // Optionally, send an error message to the chat or display a notification
-      const errorMessage = `Failed to process and upload audio: ${error instanceof Error ? error.message : 'Unknown error'}`;
-      onSendMessage('text', errorMessage); // Or a dedicated error message type
-    }
-  };
-
-  const handleSendClick = () => {
-    if (textInput.trim()) {
-      sendTextMessage();
-    }
-  };
-
-  // Handle hold-to-record functionality
-  const startHoldRecording = () => {
-    if (!isRecording) {
-      startRecording();
-    }
-  };
-
-  const stopHoldRecording = () => {
-    if (isRecording) {
-      stopRecording();
     }
   };
 
   return (
-    <div className="input-area">
-      <div className="text-input-container">
+      <div className="input-area">
+        <div className="text-input-container">
         <textarea
-          ref={textareaRef}
-          className="text-input"
-          placeholder="Type your message here..."
-          value={textInput}
-          onChange={handleTextChange}
-          onKeyPress={handleKeyPress}
-          rows={1}
-          disabled={disabled}
+            ref={textareaRef}
+            className="text-input"
+            placeholder="Type a message (Enter to send) or hold the mic to record"
+            value={textInput}
+            onChange={handleTextChange}
+            onKeyPress={handleKeyPress}
+            rows={1}
+            disabled={disabled}
         />
-        <button
-          className={`send-voice-btn ${isRecording ? 'recording' : ''}`}
-          onMouseDown={startHoldRecording}
-          onMouseUp={stopHoldRecording}
-          onMouseLeave={stopHoldRecording}
-          onTouchStart={startHoldRecording}
-          onTouchEnd={stopHoldRecording}
-          onClick={handleSendClick}
-          disabled={disabled || (!textInput.trim() && !isRecording)}
-        >
-          <div className="btn-content">
+          <button
+              className={`send-voice-btn ${isRecording ? 'recording' : ''}`}
+              // Use mouse/touch events for hold-to-record functionality
+              onMouseDown={startRecording}
+              onMouseUp={stopRecording}
+              onMouseLeave={stopRecording} // Stop if mouse leaves button area
+              onTouchStart={startRecording}
+              onTouchEnd={stopRecording}
+              disabled={disabled}
+              title="Hold to Record Audio"
+          >
+            <div className="btn-content">
             <span className="send-btn-text">
-              {isRecording ? 'Recording...' : 'Send'}
+              {isRecording ? 'Recording...' : '🎤'}
             </span>
-            <span className="send-btn-icon">
-              {isRecording ? '🎤' : '➤'}
+              <span className="send-btn-icon">
+              {isRecording ? '🔴' : '🎤'}
             </span>
-          </div>
-          {isRecording && (
-            <div className="recording-indicator">
-              <div className="pulse"></div>
             </div>
-          )}
-        </button>
+            {isRecording && <div className="recording-indicator" />}
+          </button>
+        </div>
       </div>
-    </div>
   );
 };
 
 export default InputArea;
+// --- END OF REFACTORED CODE ---
