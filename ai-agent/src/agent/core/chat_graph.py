@@ -127,7 +127,7 @@ def generate_answer_node(state: ChatGraphState):
     ai_model = state.get("ai_model", "google/gemini-2.5-pro")
 
     if ai_model is None:
-        ai_model = "google/gemini-flash-1.5"
+        ai_model = "google/gemini-2.5-pro"
 
     audio_path = state.get("audio_path")
 
@@ -156,6 +156,8 @@ def generate_answer_node(state: ChatGraphState):
         content=user_task,
         additional_kwargs=human_message_kwargs
     )
+
+    result.content = result.content.split("</think>")[-1]
 
     return {
         "messages": [human_msg, result],

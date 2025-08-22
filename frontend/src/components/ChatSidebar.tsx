@@ -1,7 +1,7 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import './ChatSidebar.css';
 import type { ChatSession } from './ChatView';
-import { BotMessageSquare, ChevronLeft, File, Folder, History, MessageSquare, Mic, Search, Plus, CheckSquare, User } from 'lucide-react';
+import { BotMessageSquare, ChevronLeft, File, Folder, History, MessageSquare, Mic, Search, Plus, CheckSquare, User, X } from 'lucide-react';
 
 interface ChatSidebarProps {
   chatSessions: ChatSession[];
@@ -24,6 +24,17 @@ const ChatSidebar: React.FC<ChatSidebarProps> = ({
   loading,
   creatingChat,
 }) => {
+  const [isMobile, setIsMobile] = useState(false);
+
+  useEffect(() => {
+    const checkMobile = () => {
+      setIsMobile(window.innerWidth <= 768);
+    };
+    
+    checkMobile();
+    window.addEventListener('resize', checkMobile);
+    return () => window.removeEventListener('resize', checkMobile);
+  }, []);
 
   const navItems = [
     { icon: <MessageSquare size={18} />, label: 'Chat', active: true },
@@ -34,7 +45,7 @@ const ChatSidebar: React.FC<ChatSidebarProps> = ({
   ];
 
   return (
-    <aside className={`chat-sidebar ${collapsed ? 'collapsed' : ''}`}>
+    <aside className={`chat-sidebar ${collapsed ? 'collapsed' : ''} ${!collapsed && isMobile ? 'mobile-visible' : ''}`}>
         <div className="sidebar-content">
 
             <header className="sidebar-header">
@@ -42,9 +53,15 @@ const ChatSidebar: React.FC<ChatSidebarProps> = ({
                     <BotMessageSquare size={24} />
                     <span>AI Assistant</span>
                 </div>
-                <button className="collapse-btn" onClick={onToggleCollapse} title="Collapse sidebar">
-                    <ChevronLeft size={18} />
-                </button>
+                {isMobile ? (
+                    <button className="mobile-close-btn" onClick={onToggleCollapse} title="Close sidebar">
+                        <X size={20} />
+                    </button>
+                ) : (
+                    <button className="collapse-btn" onClick={onToggleCollapse} title="Collapse sidebar">
+                        <ChevronLeft size={18} />
+                    </button>
+                )}
             </header>
 
   

@@ -4,7 +4,9 @@ import ChatHeader from './ChatHeader';
 import MessagesContainer from './MessagesContainer';
 import InputArea from './InputArea';
 import './ChatView.css';
-import { getChatsUrl, fetchThreadMessages, sendMessageToThread, createNewThread, type BackendMessage } from '../lib/api';
+import { getChatsUrl } from '../lib/api';
+import { chatsService } from '../lib/chatsService';
+import type { BackendMessage } from '../lib/api';
 
 // A cleaner, frontend-specific interface for a message object.
 export interface Message {
@@ -80,7 +82,7 @@ const ChatView: React.FC = () => {
     ));
 
     try {
-      const backendMessages = await fetchThreadMessages(currentChat.thread_id);
+      const backendMessages = await chatsService.getThreadMessages(currentChat.thread_id);
       const convertedMessages = convertBackendMessages(backendMessages);
 
       setChatSessions(prev => prev.map(chat =>
@@ -153,7 +155,7 @@ const ChatView: React.FC = () => {
     setCreatingChat(true);
     setError(null);
     try {
-      const newThreadData = await createNewThread(`New Chat`);
+      const newThreadData = await chatsService.createThread({ title: `New Chat` });
       const newChat: ChatSession = {
         id: newThreadData.chat_id,
         thread_id: newThreadData.thread_id,
@@ -220,19 +222,19 @@ const ChatView: React.FC = () => {
     addOptimisticMessage(optimisticText, audioPath);
 
     try {
-      const result = await sendMessageToThread(
+      const result = await chatsService.sendMessageToThread(
         currentChat.thread_id, 
         text, 
         audioPath,
-        (isTyping) => {
-          // This callback will be called by the API function to manage typing state
-          setIsTyping(isTyping);
+        (isLoading: boolean) => {
+          // This callback will be called by the API function to manage loading state
+          setIsTyping(isLoading);
         }
       );
       
       // The backend returns either "success" or "interrupted" status
       if (result.status === 'success' || result.status === 'interrupted') {
-        // In both cases, we want to refresh the messages to show the latest state
+        // Refresh messages to get the complete conversation including AI response
         await fetchMessagesForCurrentChat();
       }
       
@@ -240,6 +242,13 @@ const ChatView: React.FC = () => {
       const errorMessage = err instanceof Error ? err.message : 'An unknown error occurred.';
       console.error('Error sending message:', errorMessage);
       setError(`Failed to send message: ${errorMessage}`);
+      
+      // Remove optimistic message on error
+      setChatSessions(prev => prev.map(chat =>
+          chat.id === currentChatId
+              ? { ...chat, messages: chat.messages.filter(msg => !msg.id.startsWith('msg_optimistic_')) }
+              : chat
+      ));
     }
   };
 

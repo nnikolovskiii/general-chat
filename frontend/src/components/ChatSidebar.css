@@ -225,13 +225,43 @@
         z-index: 1000;
         transform: translateX(-100%);
         box-shadow: 0 0 40px rgba(0,0,0,0.1);
+        width: 280px !important;
     }
     
     .chat-sidebar.mobile-visible {
         transform: translateX(0);
     }
 
+    .chat-sidebar.collapsed {
+        width: 0 !important;
+        transform: translateX(-100%);
+    }
+
     .collapse-btn {
         display: none; /* Hide desktop collapse button on mobile */
+    }
+
+    .mobile-close-btn {
+        background: none;
+        border: none;
+        color: var(--sidebar-foreground);
+        cursor: pointer;
+        padding: 0.25rem;
+        border-radius: var(--radius);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+
+    .mobile-close-btn:hover {
+        background-color: var(--sidebar-accent);
+    }
+
+    .sidebar-content {
+        padding: 1rem;
+    }
+
+    .chat-sessions {
+        padding-right: 0;
     }
 }

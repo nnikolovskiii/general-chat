@@ -4,7 +4,6 @@ import './App.css'
 import FileUploadDashboard from './pages/FileUploadDashboard'
 import CodesView from './pages/CodesView.tsx'
 import Chat from './pages/Chat'
-import ThreadView from './pages/ThreadView'
 import Login from './pages/Login'
 import Register from './pages/Register'
 import { AuthProvider, useAuth } from './contexts/AuthContext'
@@ -63,7 +62,6 @@ function App() {
           <Route path="/upload_files" element={<FileUploadDashboard />} />
           <Route path="/files" element={<CodesView />} />
           <Route path="/chat" element={<Chat />} />
-          <Route path="/thread-view" element={<ThreadView />} />
           {/* Add other dashboard routes here in the future */}
         </Route>
 

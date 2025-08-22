@@ -8,6 +8,16 @@
     overflow: hidden;
 }
 
+.chat-sidebar-container {
+    height: 100%;
+    flex-shrink: 0;
+}
+
+.chat-sidebar-container.mobile {
+    position: relative;
+    z-index: 1001;
+}
+
 .main-chat-area {
     flex: 1;
     display: flex;
