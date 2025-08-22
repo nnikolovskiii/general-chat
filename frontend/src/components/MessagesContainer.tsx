@@ -1,6 +1,7 @@
 // Path: frontend/src/components/MessagesContainer.tsx
 
 import React, { useEffect, useRef, useState } from 'react';
+import ReactMarkdown from 'react-markdown'; // <-- Import the library
 import type { Message } from './ChatView';
 import AudioPlayer from './AudioPlayer';
 import MessageToggle from './MessageToggle';
@@ -26,7 +27,7 @@ const MessagesContainer: React.FC<MessagesContainerProps> = ({ messages, isTypin
     messages.forEach(message => {
       if (message.content && message.audioUrl) {
         if (!(message.id in showAudioStates)) {
-          newStates[message.id] = false; // Default to show text
+          newStates[message.id] = false;
         }
       }
     });
@@ -43,6 +44,34 @@ const MessagesContainer: React.FC<MessagesContainerProps> = ({ messages, isTypin
     }));
   };
 
+  const MessageBody: React.FC<{ message: Message }> = ({ message }) => {
+    const showAudio = showAudioStates[message.id] || false;
+    
+    return (
+      <div className="message-content">
+        <MessageToggle
+          showAudio={showAudio}
+          onToggle={() => toggleMessageView(message.id)}
+          hasText={!!message.content}
+          hasAudio={!!message.audioUrl}
+        />
+
+        {message.content && !(message.audioUrl && showAudio) && (
+          // Use ReactMarkdown to render the text content
+          <div className="text-content">
+            <ReactMarkdown>{message.content}</ReactMarkdown>
+          </div>
+        )}
+        
+        {message.audioUrl && (!message.content || showAudio) && (
+            <div className="audio-content">
+              <AudioPlayer audioUrl={message.audioUrl} />
+            </div>
+        )}
+      </div>
+    );
+  };
+
   return (
       <div className="messages-container" ref={containerRef}>
         <div className="messages-list">
@@ -50,33 +79,16 @@ const MessagesContainer: React.FC<MessagesContainerProps> = ({ messages, isTypin
             <div key={message.id} className={`message ${message.type === 'human' ? 'user' : 'ai'}`}>
               {message.type === 'human' ? (
                 <div className="message-bubble">
-                  <div className="message-content">{message.content}</div>
+                  <MessageBody message={message} />
                 </div>
               ) : (
                 <>
                   <div className="ai-message-header">
                     <Bot size={16} />
-                    <span>Thought for 43s</span> {/* Placeholder */}
+                    <span>AI Assistant</span>
                   </div>
                   <div className="message-bubble">
-                    <div className="message-content">
-                      <MessageToggle
-                        showAudio={showAudioStates[message.id] || false}
-                        onToggle={() => toggleMessageView(message.id)}
-                        hasText={!!message.content}
-                        hasAudio={!!message.audioUrl}
-                      />
-
-                      {message.content && !(message.audioUrl && showAudioStates[message.id]) && (
-                        <div className="text-content">{message.content}</div>
-                      )}
-                      
-                      {message.audioUrl && (!message.content || showAudioStates[message.id]) && (
-                          <div className="audio-content">
-                            <AudioPlayer audioUrl={message.audioUrl} />
-                          </div>
-                      )}
-                    </div>
+                    <MessageBody message={message} />
                   </div>
                 </>
               )}

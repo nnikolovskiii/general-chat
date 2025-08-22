@@ -47,19 +47,15 @@ const ChatSidebar: React.FC<ChatSidebarProps> = ({
                 </button>
             </header>
 
-            <div className="sidebar-search">
-                <Search size={16} className="sidebar-search-icon" />
-                <input type="text" placeholder="Search Ctrl+K" className="sidebar-search-input" />
-            </div>
-
-            <nav className="sidebar-nav">
+  
+            {/* <nav className="sidebar-nav">
                 {navItems.map(item => (
                     <a href="#" key={item.label} className={`nav-item ${item.active ? 'active' : ''}`}>
                         {item.icon}
                         <span>{item.label}</span>
                     </a>
                 ))}
-            </nav>
+            </nav> */}
 
             <section className="history-section">
                 <div className="history-header">

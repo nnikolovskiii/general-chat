@@ -1,3 +1,4 @@
+/* Path: frontend/src/components/ChatView.css */
 .chat-view-wrapper {
     height: 100vh;
     width: 100vw;
@@ -102,7 +103,7 @@
 }
 
 .message-bubble {
-    padding: 0.75rem 1rem;
+    padding: 0.75rem 1.25rem;
     border-radius: 1.25rem;
     background-color: white;
     box-shadow: var(--shadow-sm);
@@ -132,14 +133,64 @@
 .message-content {
     line-height: 1.6;
     word-wrap: break-word;
+    /* FIX: Ensure text inside bubbles is left-aligned */
+    text-align: left;
 }
-.message-content ul {
+
+/* --- NEW: Markdown Specific Styles --- */
+.message-content p {
+    margin: 0; /* Let ReactMarkdown handle spacing */
+}
+.message-content p:not(:last-child) {
+    margin-bottom: 0.75rem;
+}
+
+.message-content ul, .message-content ol {
     list-style-position: outside;
     padding-left: 1.25rem;
-}
-.message-content li {
+    margin-top: 0.5rem;
     margin-bottom: 0.5rem;
 }
+
+.message-content li {
+    margin-bottom: 0.25rem;
+}
+
+.message-content pre {
+    background-color: hsl(var(--muted) / 0.4);
+    border: 1px solid var(--border);
+    padding: 0.75rem;
+    border-radius: var(--radius);
+    margin: 0.75rem 0;
+    overflow-x: auto;
+    font-size: 0.875rem;
+}
+
+.message.user .message-content pre {
+     background-color: hsla(var(--primary-foreground), 0.1);
+     border-color: hsla(var(--primary-foreground), 0.2);
+}
+
+.message-content code {
+    font-family: monospace;
+    background-color: hsl(var(--muted) / 0.4);
+    padding: 0.1rem 0.3rem;
+    border-radius: 0.25rem;
+    font-size: 0.9em;
+}
+
+.message.user .message-content code {
+    background-color: hsla(var(--primary-foreground), 0.15);
+}
+
+.message-content pre > code {
+    background-color: transparent;
+    padding: 0;
+    border-radius: 0;
+    border: none;
+}
+/* --- END: Markdown Specific Styles --- */
+
 
 /* Typing Indicator */
 .typing-indicator {

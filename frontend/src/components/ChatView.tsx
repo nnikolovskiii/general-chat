@@ -216,22 +216,30 @@ const ChatView: React.FC = () => {
 
     if (!text?.trim() && !audioPath) return;
 
-    setIsTyping(true);
-
     const optimisticText = text || "Audio message sent...";
     addOptimisticMessage(optimisticText, audioPath);
 
     try {
-      await sendMessageToThread(currentChat.thread_id, text, audioPath);
-      setTimeout(async () => {
+      const result = await sendMessageToThread(
+        currentChat.thread_id, 
+        text, 
+        audioPath,
+        (isTyping) => {
+          // This callback will be called by the API function to manage typing state
+          setIsTyping(isTyping);
+        }
+      );
+      
+      // The backend returns either "success" or "interrupted" status
+      if (result.status === 'success' || result.status === 'interrupted') {
+        // In both cases, we want to refresh the messages to show the latest state
         await fetchMessagesForCurrentChat();
-        setIsTyping(false);
-      }, 2000); // 2-second delay to allow backend processing time
+      }
+      
     } catch (err) {
       const errorMessage = err instanceof Error ? err.message : 'An unknown error occurred.';
       console.error('Error sending message:', errorMessage);
       setError(`Failed to send message: ${errorMessage}`);
-      setIsTyping(false);
     }
   };
 

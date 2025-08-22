@@ -105,8 +105,13 @@ export const fetchThreadMessages = async (threadId: string): Promise<BackendMess
     return response.json();
 };
 
-export const sendMessageToThread = async (threadId: string, message?: string, audioPath?: string): Promise<{status: string, message: string}> => {
-    const payload: { message?: string; audio_path?: string } = {};
+export const sendMessageToThread = async (
+    threadId: string, 
+    message?: string, 
+    audioPath?: string,
+    onStreamUpdate?: (isTyping: boolean) => void
+): Promise<{status: string, data?: any}> => {
+    const payload: { message?: string; audio_path?: string; ai_model?: string } = {};
 
     // Only include non-empty message
     if (message && message.trim()) {
@@ -117,21 +122,42 @@ export const sendMessageToThread = async (threadId: string, message?: string, au
         payload.audio_path = audioPath;
     }
 
-    const response = await fetch(sendMessageToThreadUrl(threadId), {
-        method: 'POST',
-        credentials: 'include',
-        headers: {
-            'Content-Type': 'application/json',
-        },
-        body: JSON.stringify(payload),
-    });
-
-    if (!response.ok) {
-        const errorText = await response.text();
-        throw new Error(`Failed to send message: ${response.statusText} (${errorText})`);
+    // Signal that streaming is starting
+    if (onStreamUpdate) {
+        onStreamUpdate(true);
     }
 
-    return response.json();
+    try {
+        const response = await fetch(sendMessageToThreadUrl(threadId), {
+            method: 'POST',
+            credentials: 'include',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify(payload),
+        });
+
+        if (!response.ok) {
+            const errorText = await response.text();
+            throw new Error(`Failed to send message: ${response.statusText} (${errorText})`);
+        }
+
+        // The backend processes the message and returns when done
+        const result = await response.json();
+        
+        // Signal that streaming is complete
+        if (onStreamUpdate) {
+            onStreamUpdate(false);
+        }
+        
+        return result;
+    } catch (error) {
+        // Make sure to turn off typing indicator on error
+        if (onStreamUpdate) {
+            onStreamUpdate(false);
+        }
+        throw error;
+    }
 };
 
 export const createNewThread = async (title: string): Promise<{chat_id: string, thread_id: string, title: string, created_at: string}> => {
