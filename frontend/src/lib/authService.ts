@@ -1,4 +1,4 @@
-import { API_CONFIG, buildApiUrl, getAuthUrl } from './api';
+import { getAuthUrl } from './api';
 
 // Type definitions
 export interface LoginCredentials {

@@ -1,5 +1,7 @@
 from __future__ import annotations
 import os
+import re
+
 
 from dotenv import load_dotenv
 from pydantic import BaseModel, Field
@@ -148,6 +150,8 @@ def generate_answer_node(state: ChatGraphState):
     )
     result = open_router_model.invoke(instruction)
 
+    audio_path = audio_path.replace("http://files_app:5001", "https://files.nikolanikolovski.com")
+
     human_message_kwargs = {}
     if audio_path:
         human_message_kwargs["file_url"] = audio_path
@@ -158,6 +162,7 @@ def generate_answer_node(state: ChatGraphState):
     )
 
     result.content = result.content.split("</think>")[-1]
+    result.content = re.sub(r'\n{2,}', '\n', result.content)
 
     return {
         "messages": [human_msg, result],

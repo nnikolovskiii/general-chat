@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import './ChatSidebar.css';
 import type { ChatSession } from './ChatView';
-import { BotMessageSquare, ChevronLeft, File, Folder, History, MessageSquare, Mic, Search, Plus, CheckSquare, User, X } from 'lucide-react';
+import { BotMessageSquare, ChevronLeft, History, Plus, X } from 'lucide-react';
 
 interface ChatSidebarProps {
   chatSessions: ChatSession[];
@@ -35,14 +35,6 @@ const ChatSidebar: React.FC<ChatSidebarProps> = ({
     window.addEventListener('resize', checkMobile);
     return () => window.removeEventListener('resize', checkMobile);
   }, []);
-
-  const navItems = [
-    { icon: <MessageSquare size={18} />, label: 'Chat', active: true },
-    { icon: <Mic size={18} />, label: 'Voice' },
-    { icon: <File size={18} />, label: 'Files' },
-    { icon: <CheckSquare size={18} />, label: 'Tasks' },
-    { icon: <Folder size={18} />, label: 'Projects' },
-  ];
 
   return (
     <aside className={`chat-sidebar ${collapsed ? 'collapsed' : ''} ${!collapsed && isMobile ? 'mobile-visible' : ''}`}>

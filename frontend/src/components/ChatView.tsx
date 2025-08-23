@@ -57,7 +57,6 @@ const ChatView: React.FC = () => {
   const [isTyping, setIsTyping] = useState(false);
   const [loadingChats, setLoadingChats] = useState(true);
   const [creatingChat, setCreatingChat] = useState(false);
-  const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
     const handleResize = () => {
@@ -93,7 +92,6 @@ const ChatView: React.FC = () => {
     } catch (err) {
       const errorMessage = err instanceof Error ? err.message : 'Could not fetch messages.';
       console.error('Error fetching messages for thread:', errorMessage);
-      setError(`Failed to load messages for this chat. ${errorMessage}`);
     }
   }, [currentChatId, chatSessions]);
 
@@ -130,7 +128,6 @@ const ChatView: React.FC = () => {
       } catch (err) {
         const errorMessage = err instanceof Error ? err.message : 'An unknown error occurred.';
         console.error('Error fetching chats:', errorMessage);
-        setError(`Could not load chat history. ${errorMessage}`);
         // As a fallback, create a local-only chat session.
         await createNewChat();
       } finally {
@@ -153,7 +150,6 @@ const ChatView: React.FC = () => {
 
   const createNewChat = async () => {
     setCreatingChat(true);
-    setError(null);
     try {
       const newThreadData = await chatsService.createThread({ title: `New Chat` });
       const newChat: ChatSession = {
@@ -177,7 +173,6 @@ const ChatView: React.FC = () => {
     } catch (err) {
       const errorMessage = err instanceof Error ? err.message : 'Failed to create new chat.';
       console.error('Error creating new chat:', errorMessage);
-      setError(errorMessage);
     } finally {
       setCreatingChat(false);
     }
@@ -212,7 +207,7 @@ const ChatView: React.FC = () => {
   const handleSendMessage = async (text?: string, audioPath?: string) => {
     const currentChat = chatSessions.find(chat => chat.id === currentChatId);
     if (!currentChat || !currentChat.thread_id) {
-      setError("No active chat session selected.");
+      console.error("No active chat session selected.");
       return;
     }
 
@@ -241,7 +236,6 @@ const ChatView: React.FC = () => {
     } catch (err) {
       const errorMessage = err instanceof Error ? err.message : 'An unknown error occurred.';
       console.error('Error sending message:', errorMessage);
-      setError(`Failed to send message: ${errorMessage}`);
       
       // Remove optimistic message on error
       setChatSessions(prev => prev.map(chat =>

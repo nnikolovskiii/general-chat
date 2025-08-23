@@ -1,5 +1,8 @@
 import asyncio
+import os
 from typing import Optional, List, Dict, Any
+
+from dotenv import load_dotenv
 from fastapi import APIRouter, Depends, HTTPException
 from langgraph_sdk import get_client
 from pydantic import BaseModel
@@ -11,6 +14,8 @@ from accounting_agent.container import container
 from accounting_agent.services.chat import ChatService
 
 router = APIRouter()
+load_dotenv()
+langgraph_url = os.getenv("LANGGRAPH_URL")
 
 
 class ChatResponse(BaseModel):
@@ -81,7 +86,7 @@ async def get_thread_messages(
     """
     try:
         # Initialize langgraph client
-        client = get_client(url="http://localhost:8123")
+        client = get_client(url=langgraph_url)
 
         # Get the thread state
         thread_state = await client.threads.get_state(thread_id=thread_id)
@@ -114,7 +119,7 @@ async def send_message_to_thread(
     """
     try:
         # Initialize langgraph client
-        client = get_client(url="http://localhost:8123")
+        client = get_client(url=langgraph_url)
 
         # Prepare the input
         run_input = {}
@@ -162,7 +167,7 @@ async def create_new_thread(
         chat_service = ChatService(postgres_db)
 
         # Initialize langgraph client
-        client = get_client(url="http://localhost:8123")
+        client = get_client(url=langgraph_url)
 
         # Create a new thread in langgraph
         thread = await client.threads.create()
@@ -197,7 +202,7 @@ async def create_new_thread(
 
 
 async def send_message(thread_id: str, assistant_id: str, text_input: str):
-    client = get_client(url="http://localhost:8123")
+    client = get_client(url=langgraph_url)
 
     run_input = {
         # "audio_path": "https://files.nikolanikolovski.com/test/download/test_audio.ogg",

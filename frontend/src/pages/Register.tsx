@@ -33,360 +33,163 @@ const Register: React.FC = () => {
   };
 
   return (
-    <div style={styles.body}>
+    <div className="min-h-screen bg-background flex flex-col">
       {/* Header */}
-      <div style={styles.header}>
-        <div style={styles.headerLeft}>
-          <div style={styles.appMenu}>
+      <header className="header bg-gray-900 text-white px-3 h-14 flex items-center justify-between shadow-md fixed top-0 left-0 right-0 z-50">
+        <div className="header-left flex items-center gap-3">
+          <div className="app-menu w-5 h-5 grid grid-cols-3 gap-px">
             {[...Array(9)].map((_, i) => (
-              <div key={i} style={i === 0 ? { ...styles.appMenuDot, ...styles.activeAppMenuDot } : styles.appMenuDot}></div>
+              <div 
+                key={i} 
+                className={`w-1 h-1 rounded-full ${i === 0 ? 'bg-green-400' : 'bg-gray-600'}`}
+              ></div>
             ))}
           </div>
         </div>
-        <div style={styles.headerRight}>
-          <div style={styles.userInfo}>
-            <div style={styles.userAvatar}>AC</div>
+        <div className="header-right flex items-center gap-2">
+          <div className="user-info flex items-center gap-1.5">
+            <div className="user-avatar w-7 h-7 rounded-full bg-gradient-to-br from-blue-500 to-purple-600 flex items-center justify-center text-white font-semibold text-xs">
+              AC
+            </div>
             <div>
-              <div style={{ fontSize: '14px', fontWeight: 600 }}>Accountant</div>
-              <div style={{ fontSize: '12px', color: '#a0aec0' }}>Register</div>
+              <div className="text-sm font-semibold">Accountant</div>
+              <div className="text-xs text-gray-400">Register</div>
             </div>
           </div>
         </div>
-      </div>
+      </header>
 
-      {/* Sidebar */}
-      <div style={styles.sidebar}>
-        <div style={styles.sidebarSection}>
-          <Link to="/" style={styles.sidebarItem}>
-            <div style={styles.sidebarItemIcon}>🏠</div>
-            Home
-          </Link>
-        </div>
-        <div style={styles.sidebarSection}>
-          <div style={styles.sidebarHeader}>
-            <div style={styles.sidebarTitle}>Authentication</div>
+      <div className="flex flex-1 pt-14">
+        {/* Sidebar - hidden on mobile */}
+        <aside className="sidebar w-60 bg-white border-r border-border fixed top-14 bottom-0 left-0 overflow-y-auto py-4 hidden md:block">
+          <div className="sidebar-section mb-6">
+            <Link to="/" className="sidebar-item flex items-center px-4 py-2.5 text-gray-600 text-sm no-underline border-l-3 border-transparent transition-all duration-200 hover:bg-gray-100">
+              <div className="sidebar-item-icon w-4 h-4 mr-2.5 flex items-center justify-center">🏠</div>
+              Home
+            </Link>
           </div>
-          <Link to="/login" style={styles.sidebarItem}>
-            <div style={styles.sidebarItemIcon}>🔑</div>
-            Login
-          </Link>
-          <a href="#" style={{ ...styles.sidebarItem, ...styles.activeSidebarItem }}>
-            <div style={styles.sidebarItemIcon}>📝</div>
-            Register
-          </a>
-        </div>
-      </div>
+          <div className="sidebar-section mb-6">
+            <div className="sidebar-header flex items-center justify-between px-4 mb-2">
+              <div className="sidebar-title text-sm font-semibold text-gray-800">Authentication</div>
+            </div>
+            <Link to="/login" className="sidebar-item flex items-center px-4 py-2.5 text-gray-600 text-sm no-underline border-l-3 border-transparent transition-all duration-200 hover:bg-gray-100">
+              <div className="sidebar-item-icon w-4 h-4 mr-2.5 flex items-center justify-center">🔑</div>
+              Login
+            </Link>
+            <a href="#" className="sidebar-item flex items-center px-4 py-2.5 text-gray-800 text-sm no-underline border-l-3 border-blue-500 bg-gray-100 transition-all duration-200">
+              <div className="sidebar-item-icon w-4 h-4 mr-2.5 flex items-center justify-center">📝</div>
+              Register
+            </a>
+          </div>
+        </aside>
 
-      {/* Main Content */}
-      <div style={styles.mainContent}>
-        <div style={styles.pageHeader}>
-          <h1 style={styles.pageTitle}>Register</h1>
-          <p style={styles.pageSubtitle}>Create a new account</p>
-        </div>
+        {/* Main Content */}
+        <main className="main-content flex-1 ml-0 md:ml-60 p-4 md:p-6">
+          <div className="page-header mb-6">
+            <h1 className="page-title text-2xl md:text-3xl font-bold text-gray-800 mb-1.5">Register</h1>
+            <p className="page-subtitle text-sm md:text-base text-gray-500">Create a new account</p>
+          </div>
 
-        <div style={styles.registerSection}>
-          {error && (
-            <div style={styles.errorMessage}>
-              {error}
-            </div>
-          )}
-          
-          {success && (
-            <div style={styles.successMessage}>
-              Registration successful! Redirecting to login...
-            </div>
-          )}
-          
-          <form onSubmit={handleSubmit} style={styles.registerForm}>
-            <div style={styles.formGroup}>
-              <label htmlFor="name" style={styles.label}>First Name</label>
-              <input
-                type="text"
-                id="name"
-                value={name}
-                onChange={(e) => setName(e.target.value)}
-                style={styles.input}
-                required
-                placeholder="Enter your first name"
-              />
-            </div>
+          <div className="register-section max-w-md mx-auto bg-card border border-border rounded-lg p-5 md:p-6 shadow-sm">
+            {error && (
+              <div className="error-message bg-destructive/10 text-destructive border border-destructive/20 rounded-md p-2.5 mb-4 text-sm">
+                {error}
+              </div>
+            )}
             
-            <div style={styles.formGroup}>
-              <label htmlFor="surname" style={styles.label}>Last Name</label>
-              <input
-                type="text"
-                id="surname"
-                value={surname}
-                onChange={(e) => setSurname(e.target.value)}
-                style={styles.input}
-                required
-                placeholder="Enter your last name"
-              />
-            </div>
+            {success && (
+              <div className="success-message bg-success/10 text-success border border-success/20 rounded-md p-2.5 mb-4 text-sm">
+                Registration successful! Redirecting to login...
+              </div>
+            )}
             
-            <div style={styles.formGroup}>
-              <label htmlFor="username" style={styles.label}>Username</label>
-              <input
-                type="text"
-                id="username"
-                value={username}
-                onChange={(e) => setUsername(e.target.value)}
-                style={styles.input}
-                required
-                placeholder="Enter your username"
-              />
-            </div>
-            
-            <div style={styles.formGroup}>
-              <label htmlFor="email" style={styles.label}>Email</label>
-              <input
-                type="email"
-                id="email"
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
-                style={styles.input}
-                required
-                placeholder="Enter your email"
-              />
-            </div>
-            
-            <div style={styles.formGroup}>
-              <label htmlFor="password" style={styles.label}>Password</label>
-              <input
-                type="password"
-                id="password"
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
-                style={styles.input}
-                required
-                placeholder="Enter your password"
-              />
-            </div>
-            
-            <button 
-              type="submit" 
-              style={isLoading || success ? { ...styles.registerButton, ...styles.registerButtonDisabled } : styles.registerButton}
-              disabled={isLoading || success}
-            >
-              {isLoading ? 'Registering...' : success ? 'Registered!' : 'Register'}
-            </button>
-            
-            <div style={styles.loginLink}>
-              Already have an account? <Link to="/login">Login</Link>
-            </div>
-          </form>
-        </div>
+            <form onSubmit={handleSubmit} className="register-form flex flex-col gap-4">
+              <div className="form-group flex flex-col gap-1.5">
+                <label htmlFor="name" className="label text-xs md:text-sm font-medium text-gray-600">First Name</label>
+                <input
+                  type="text"
+                  id="name"
+                  value={name}
+                  onChange={(e) => setName(e.target.value)}
+                  className="input w-full px-3 py-2.5 text-sm md:text-base border border-input rounded-md transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary"
+                  required
+                  placeholder="Enter your first name"
+                />
+              </div>
+              
+              <div className="form-group flex flex-col gap-1.5">
+                <label htmlFor="surname" className="label text-xs md:text-sm font-medium text-gray-600">Last Name</label>
+                <input
+                  type="text"
+                  id="surname"
+                  value={surname}
+                  onChange={(e) => setSurname(e.target.value)}
+                  className="input w-full px-3 py-2.5 text-sm md:text-base border border-input rounded-md transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary"
+                  required
+                  placeholder="Enter your last name"
+                />
+              </div>
+              
+              <div className="form-group flex flex-col gap-1.5">
+                <label htmlFor="username" className="label text-xs md:text-sm font-medium text-gray-600">Username</label>
+                <input
+                  type="text"
+                  id="username"
+                  value={username}
+                  onChange={(e) => setUsername(e.target.value)}
+                  className="input w-full px-3 py-2.5 text-sm md:text-base border border-input rounded-md transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary"
+                  required
+                  placeholder="Enter your username"
+                />
+              </div>
+              
+              <div className="form-group flex flex-col gap-1.5">
+                <label htmlFor="email" className="label text-xs md:text-sm font-medium text-gray-600">Email</label>
+                <input
+                  type="email"
+                  id="email"
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
+                  className="input w-full px-3 py-2.5 text-sm md:text-base border border-input rounded-md transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary"
+                  required
+                  placeholder="Enter your email"
+                />
+              </div>
+              
+              <div className="form-group flex flex-col gap-1.5">
+                <label htmlFor="password" className="label text-xs md:text-sm font-medium text-gray-600">Password</label>
+                <input
+                  type="password"
+                  id="password"
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
+                  className="input w-full px-3 py-2.5 text-sm md:text-base border border-input rounded-md transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary"
+                  required
+                  placeholder="Enter your password"
+                />
+              </div>
+              
+              <button 
+                type="submit" 
+                disabled={isLoading || success}
+                className={`register-button w-full py-2.5 px-5 text-sm md:text-base font-medium text-white rounded-md transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary ${
+                  isLoading || success
+                    ? 'bg-primary/70 cursor-not-allowed' 
+                    : 'bg-primary hover:bg-primary/90 cursor-pointer'
+                }`}
+              >
+                {isLoading ? 'Registering...' : success ? 'Registered!' : 'Register'}
+              </button>
+              
+              <div className="login-link text-center mt-3 text-xs md:text-sm text-gray-500">
+                Already have an account? <Link to="/login" className="text-primary hover:underline">Login</Link>
+              </div>
+            </form>
+          </div>
+        </main>
       </div>
     </div>
   );
-};
-
-// Styles similar to Login and FileUploadDashboard
-const styles: { [key: string]: React.CSSProperties } = {
-  body: {
-    fontFamily: '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif',
-    background: '#f8fafc',
-    color: '#2d3748',
-    height: '100vh',
-    overflow: 'hidden',
-  },
-  header: {
-    background: '#1a202c',
-    color: 'white',
-    padding: '0 24px',
-    height: '64px',
-    display: 'flex',
-    alignItems: 'center',
-    justifyContent: 'space-between',
-    boxShadow: '0 2px 4px rgba(0, 0, 0, 0.1)',
-    position: 'fixed',
-    top: 0,
-    left: 0,
-    right: 0,
-    zIndex: 1000,
-  },
-  headerLeft: {
-    display: 'flex',
-    alignItems: 'center',
-    gap: '16px',
-  },
-  appMenu: {
-    width: '24px',
-    height: '24px',
-    display: 'grid',
-    gridTemplateColumns: 'repeat(3, 1fr)',
-    gap: '2px',
-  },
-  appMenuDot: {
-    width: '6px',
-    height: '6px',
-    background: '#4a5568',
-    borderRadius: '50%',
-  },
-  activeAppMenuDot: {
-    background: '#48bb78',
-  },
-  headerRight: {
-    display: 'flex',
-    alignItems: 'center',
-    gap: '12px',
-  },
-  userInfo: {
-    display: 'flex',
-    alignItems: 'center',
-    gap: '8px',
-  },
-  userAvatar: {
-    width: '32px',
-    height: '32px',
-    borderRadius: '50%',
-    background: 'linear-gradient(135deg, #667eea, #764ba2)',
-    display: 'flex',
-    alignItems: 'center',
-    justifyContent: 'center',
-    color: 'white',
-    fontWeight: 600,
-    fontSize: '14px',
-  },
-  sidebar: {
-    width: '280px',
-    background: 'white',
-    borderRight: '1px solid #e2e8f0',
-    position: 'fixed',
-    top: '64px',
-    bottom: 0,
-    left: 0,
-    overflowY: 'auto',
-    padding: '24px 0',
-  },
-  sidebarSection: {
-    marginBottom: '32px',
-  },
-  sidebarItem: {
-    display: 'flex',
-    alignItems: 'center',
-    padding: '12px 24px',
-    color: '#4a5568',
-    textDecoration: 'none',
-    fontSize: '14px',
-    borderLeft: '3px solid transparent',
-    transition: 'all 0.2s ease',
-  },
-  activeSidebarItem: {
-    background: '#edf2f7',
-    color: '#2d3748',
-    borderLeftColor: '#4299e1',
-  },
-  sidebarItemIcon: {
-    width: '20px',
-    height: '20px',
-    marginRight: '12px',
-    display: 'flex',
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  sidebarHeader: {
-    display: 'flex',
-    alignItems: 'center',
-    justifyContent: 'space-between',
-    padding: '0 24px',
-    marginBottom: '12px',
-  },
-  sidebarTitle: {
-    fontSize: '16px',
-    fontWeight: 600,
-    color: '#2d3748',
-  },
-  mainContent: {
-    marginLeft: '280px',
-    marginTop: '64px',
-    padding: '32px',
-    height: 'calc(100vh - 64px)',
-    overflowY: 'auto',
-  },
-  pageHeader: {
-    marginBottom: '32px',
-  },
-  pageTitle: {
-    fontSize: '28px',
-    fontWeight: 700,
-    color: '#2d3748',
-    marginBottom: '8px',
-  },
-  pageSubtitle: {
-    color: '#718096',
-    fontSize: '16px',
-  },
-  registerSection: {
-    background: 'white',
-    borderRadius: '12px',
-    padding: '32px',
-    boxShadow: '0 1px 3px rgba(0, 0, 0, 0.1)',
-    border: '1px solid #e2e8f0',
-    maxWidth: '500px',
-    margin: '0 auto',
-  },
-  registerForm: {
-    display: 'flex',
-    flexDirection: 'column',
-    gap: '20px',
-  },
-  formGroup: {
-    display: 'flex',
-    flexDirection: 'column',
-    gap: '8px',
-  },
-  label: {
-    fontSize: '14px',
-    fontWeight: 500,
-    color: '#4a5568',
-  },
-  input: {
-    padding: '12px 16px',
-    borderRadius: '8px',
-    border: '1px solid #e2e8f0',
-    fontSize: '16px',
-    transition: 'all 0.2s ease',
-    outline: 'none',
-  },
-  registerButton: {
-    background: '#4299e1',
-    color: 'white',
-    border: 'none',
-    padding: '12px 24px',
-    borderRadius: '8px',
-    fontSize: '16px',
-    fontWeight: 500,
-    cursor: 'pointer',
-    transition: 'all 0.2s ease',
-    marginTop: '10px',
-  },
-  registerButtonDisabled: {
-    opacity: 0.7,
-    cursor: 'not-allowed',
-  },
-  loginLink: {
-    textAlign: 'center',
-    marginTop: '16px',
-    fontSize: '14px',
-    color: '#718096',
-  },
-  errorMessage: {
-    background: '#fed7d7',
-    color: '#e53e3e',
-    padding: '12px 16px',
-    borderRadius: '8px',
-    marginBottom: '20px',
-    fontSize: '14px',
-  },
-  successMessage: {
-    background: '#c6f6d5',
-    color: '#38a169',
-    padding: '12px 16px',
-    borderRadius: '8px',
-    marginBottom: '20px',
-    fontSize: '14px',
-  },
 };
 
 export default Register;

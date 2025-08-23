@@ -1,5 +1,4 @@
 import { 
-  buildApiUrl, 
   getChatsUrl, 
   getThreadMessagesUrl, 
   sendMessageToThreadUrl

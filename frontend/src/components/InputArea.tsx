@@ -1,5 +1,5 @@
 import React, { useState, useRef, useCallback } from 'react';
-import { buildApiUrl } from '../lib/api';
+import { uploadService } from '../lib/filesService';
 import { Mic, Paperclip, Send } from 'lucide-react';
 
 interface InputAreaProps {
@@ -45,22 +45,34 @@ const InputArea: React.FC<InputAreaProps> = ({ onSendMessage, disabled = false }
     }
   };
 
-  const uploadAudioBlob = async (blob: Blob, filename: string): Promise<{ data: { unique_filename: string } }> => {
-    const formData = new FormData();
-    formData.append('file', blob, filename);
-
-    const response = await fetch(buildApiUrl('/files/upload'), {
-      method: 'POST',
-      body: formData,
-      credentials: 'include',
-    });
-
-    if (!response.ok) {
-      const errorText = await response.text();
-      throw new Error(`Upload failed: ${response.statusText}`);
-    }
-    return response.json();
-  };
+const uploadAudioBlob = async (blob: Blob, filename: string): Promise<{ data: { unique_filename: string } }> => {
+  try {
+    // Generate unique filename by adding timestamp and random string
+    const timestamp = Date.now();
+    const randomString = Math.random().toString(36).substring(2, 8);
+    const fileExtension = filename.split('.').pop() || 'webm';
+    const baseName = filename.split('.').slice(0, -1).join('.') || 'audio';
+    const uniqueFilename = `${baseName}_${timestamp}_${randomString}.${fileExtension}`;
+    
+    // Convert blob to File object with unique filename
+    const file = new File([blob], uniqueFilename, { type: 'audio/webm' });
+    
+    // Use uploadService to upload the file
+    // Get upload password from environment variables
+    const uploadPassword = import.meta.env.VITE_FILE_UPLOAD_PASSWORD || 'temp_password';
+    await uploadService.uploadFile(file, uploadPassword);
+    
+    // Return the expected format for compatibility with existing code
+    return {
+      data: {
+        unique_filename: uniqueFilename
+      }
+    };
+  } catch (error) {
+    const errorMessage = error instanceof Error ? error.message : 'Unknown error';
+    throw new Error(`Upload failed: ${errorMessage}`);
+  }
+};
 
   const processAudioRecording = async (audioBlob: Blob) => {
     try {
@@ -73,7 +85,7 @@ const InputArea: React.FC<InputAreaProps> = ({ onSendMessage, disabled = false }
         throw new Error("Backend did not return a valid filename for the audio.");
       }
 
-      const audioPath = `https://files.nikolanikolovski.com/test/download/${backendFilename}`;
+      const audioPath = `http://files_app:5001/test/download/${backendFilename}`;
       onSendMessage(textInput, audioPath);
       setTextInput('');
       if (textareaRef.current) {
