@@ -1,53 +1,169 @@
+import tempfile
+import os
 from pathlib import Path
 from openai import OpenAI
+from dotenv import load_dotenv
+import time
+import uuid
+from aiohttp import ClientTimeout
+import aiohttp
+
+load_dotenv()
+api_key = os.getenv("DEEPINFRA_API_KEY")
 
 client = OpenAI(base_url="https://api.deepinfra.com/v1/openai",
-                api_key="sPxZ1R0AloKPqDOHYHMiBFRrMCKIYJgN")
+                api_key=api_key)
 
-input = """Of course. Based on the context of your previous questions about CEO liability, here is a detailed guide on how to find the right legal professional in North Macedonia and communicate your specific situation effectively.
-1. The Best Type of Legal Professional to Consult
-You don't need just any lawyer; you need a specialist. In North Macedonia, the legal professional you are looking for is an "Advokat" (Адвокат) who specializes in Corporate and Commercial Law (друштвено и трговско право).
-Here’s why this specialization is crucial for your situation:
-Corporate Law Expertise: They are experts in the Law on Trade Companies (Закон за трговските друштва), which governs company formation, management structures, and the duties and liabilities of directors and CEOs. This is the core of your problem.
-Contract Law Expertise: A key part of your solution will be drafting legally sound documents. This lawyer can create a Management Agreement or amend the company's Articles of Association to clearly define your role, limit your authority (and thus, your liability), and outline your friend's operational responsibilities.
-Understanding of Liability: They will be able to give you a precise, non-theoretical assessment of your personal risks regarding financial mismanagement, tax obligations, and other statutory duties you cannot delegate, even with an agreement.
-How to find one:
-Referrals: If you have any business contacts in North Macedonia, ask for a referral to a reputable corporate law firm.
-Bar Association: The Macedonian Bar Association (Адвокатска комора на Република Северна Македонија) is the official regulatory body. While they may not recommend specific lawyers, their directory can be a starting point.
-International Business Chambers: Organizations like the American Chamber of Commerce in North Macedonia (AmCham) often have member directories that include top-tier law firms a member could consult.
-2. How to Effectively Communicate Your Situation
-To make your consultation efficient and get the most valuable advice, you need to prepare. Your goal is to clearly explain the unique arrangement and your specific concerns.
-Step 1: Prepare a Clear, One-Paragraph Summary
-Start the meeting or email with a concise summary. This immediately frames the issue for the lawyer.
-Example: "I have been asked to serve as the CEO of a new Limited Liability Company (DOO) being established in North Macedonia. However, my friend, the founder, will be managing all day-to-day operations, finances, and team leadership. My primary concern is understanding and legally limiting my personal liability, given that I will not be involved in the daily running of the business."
-Step 2: Create a "Roles & Responsibilities" Document
-Before the meeting, outline the proposed division of labor as you understand it. A simple table is very effective. This moves the conversation from abstract to concrete.
-| Area of Responsibility | My Proposed Role (CEO) | My Friend's Role (Operational Lead) |
-| :--- | :--- | :--- |
-| Strategy & Vision | High-level approval | Proposing and developing strategy |
-| Financial Management | Reviewing quarterly reports | Day-to-day bookkeeping, budgeting, payments |
-| Legal & Compliance | Ensuring a compliance system is in place | Implementing compliance (tax, labor, etc.) |
-| Hiring & Firing | Final approval on key hires | All other hiring, team management |
-| Banking | Co-signatory on the bank account | Primary authority for transactions |
-Step 3: List Your Specific Questions and Fears
-Write down exactly what you're worried about. This ensures you don't forget anything and focuses the lawyer on your priorities.
-What are the absolute legal duties of a CEO that I cannot delegate?
-What specific legal document(s) can we create to protect me? (e.g., Management Agreement, special clauses in the company statute).
-If my friend mismanages funds or fails to pay taxes, can I still be held personally liable despite our agreement?
-What happens in a worst-case scenario, like bankruptcy or a major lawsuit? What does my liability look like?
-What should my process be for overseeing the company's health without getting involved in daily operations? (e.g., specific monthly reports I should demand).
-The Goal of Your First Consultation:
-You should walk away from this meeting with:
-A clear understanding of your legal risks in this specific scenario.
-A concrete plan of action, including the specific legal documents the lawyer recommends drafting.
-A fee proposal for the lawyer to execute that plan.
-By being prepared, you demonstrate seriousness and allow the lawyer to provide you with tailored, actionable advice far more effectively than if you were to just explain the situation verbally. This investment in legal counsel is the single most important step to protect yourself."""
+FILE_SERVICE_URL = "https://files.nikolanikolovski.com"
 
-speech_file_path = "/home/nnikolovskii/dev/general-chat/ai-agent/src/agent/tools/speech.mp3"
-with client.audio.speech.with_streaming_response.create(
-  model="hexgrad/Kokoro-82M",
-  voice="af_bella",
-  input=input,
-  response_format="mp3",
-) as response:
-  response.stream_to_file(speech_file_path)
+
+def text_to_speech(text_input: str, speech_file_path: str):
+    with client.audio.speech.with_streaming_response.create(
+            model="hexgrad/Kokoro-82M",
+            voice="af_bella",
+            input=text_input,
+            response_format="mp3",
+    ) as response:
+        response.stream_to_file(speech_file_path)
+
+
+def generate_unique_filename(original_filename: str) -> str:
+    """
+    Generate a unique filename for storage while preserving the file extension.
+
+    Args:
+        original_filename: The original filename provided by the user
+
+    Returns:
+        A unique filename that can be safely used in URLs and paths
+    """
+    # Extract the file extension if it exists
+    if '.' in original_filename:
+        extension = original_filename.rsplit('.', 1)[1].lower()
+    else:
+        extension = ""
+
+    # Generate a unique identifier using timestamp and UUID
+    unique_id = f"{int(time.time())}_{uuid.uuid4().hex}"
+
+    # Create the unique filename with the original extension
+    if extension:
+        unique_filename = f"{unique_id}.{extension}"
+    else:
+        unique_filename = unique_id
+
+    return unique_filename
+
+
+class TempFile:
+    """
+    A class to simulate file-like object behavior for the upload function.
+    This allows us to work with the existing upload_file function without modification.
+    """
+
+    def __init__(self, file_path: str, filename: str, content_type: str = "audio/mpeg"):
+        self.file_path = file_path
+        self.filename = filename
+        self.content_type = content_type
+        self._position = 0
+
+    async def read(self):
+        """Read the entire file content as bytes"""
+        with open(self.file_path, 'rb') as f:
+            return f.read()
+
+    async def seek(self, position: int):
+        """Reset file pointer (no-op for our use case since we read the whole file)"""
+        self._position = position
+
+
+async def upload_file(file):
+    """
+    Upload a file to the external file service and save the metadata to the database.
+
+    Args:
+        file: A file-like object with filename, content_type, read(), and seek() methods
+    """
+    try:
+        # Generate a unique filename for storage
+        unique_filename = generate_unique_filename(file.filename)
+        timeout = ClientTimeout(total=300)
+
+        async with aiohttp.ClientSession(timeout=timeout) as session:
+            form = aiohttp.FormData()
+            form.add_field('file',
+                           await file.read(),  # Read the file content here and pass it as bytes
+                           filename=unique_filename,
+                           content_type=file.content_type)
+
+            # Reset the file pointer in case you need to use it again (good practice)
+            await file.seek(0)
+
+            # Add the password header
+            headers = {
+                'password': os.getenv("UPLOAD_PASSWORD")
+            }
+
+            upload_url = f"{FILE_SERVICE_URL}/test/upload"
+            print(f"Attempting to upload to external service: {upload_url}")  # DEBUG LOG
+
+            async with session.post(upload_url,
+                                    data=form,
+                                    headers=headers) as response:
+                if response.status != 200:
+                    raise Exception(f"Upload failed with status {response.status}")
+
+                result = await response.json()
+                return result
+
+    except Exception as e:
+        raise Exception(f"Error uploading file: {str(e)}")
+
+
+async def text_to_speech_upload_file(text_input: str):
+    """
+    Convert text to speech, upload the audio file, and clean up temporary files.
+
+    Args:
+        text_input: The text to convert to speech
+
+    Returns:
+        The result from the upload operation
+    """
+    # Create a temporary file
+    with tempfile.NamedTemporaryFile(suffix=".mp3", delete=False) as temp_file:
+        temp_file_path = temp_file.name
+
+    try:
+        # Generate speech and save to temporary file
+        text_to_speech(text_input, temp_file_path)
+
+        # Create a file-like object for upload
+        temp_filename = f"speech_{int(time.time())}.mp3"
+        file_obj = TempFile(temp_file_path, temp_filename, "audio/mpeg")
+
+        # Upload the file
+        result = await upload_file(file_obj)
+
+        return result
+
+    finally:
+        # Always clean up the temporary file, even if an error occurs
+        try:
+            if os.path.exists(temp_file_path):
+                os.unlink(temp_file_path)
+                print(f"Temporary file {temp_file_path} deleted successfully")
+        except OSError as e:
+            print(f"Warning: Could not delete temporary file {temp_file_path}: {e}")
+
+# Example usage:
+# async def main():
+#     try:
+#         result = await text_to_speech_upload_file("Hello, this is a test message.")
+#         print("Upload successful:", result)
+#     except Exception as e:
+#         print("Error:", e)
+#
+# # If running in an async context:
+# import asyncio
+# asyncio.run(main())

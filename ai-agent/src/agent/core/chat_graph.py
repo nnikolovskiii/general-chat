@@ -8,6 +8,7 @@ from pydantic import BaseModel, Field
 
 from .chat_graph_state import ChatGraphState
 from ..prompts.chat_grap_prompts import generate_answer_instruction
+from ..tools.kokoroko_utils import text_to_speech_upload_file
 
 load_dotenv()
 
@@ -163,6 +164,10 @@ def generate_answer_node(state: ChatGraphState):
 
     result.content = result.content.split("</think>")[-1]
     result.content = re.sub(r'\n{2,}', '\n', result.content)
+
+    output_audio_file = text_to_speech_upload_file(result.content)
+
+    result.additional_kwargs["file_url"] = output_audio_file
 
     return {
         "messages": [human_msg, result],
